@@ -1,0 +1,15 @@
+[INFO] UI8  => uint8_t, UInt8, uint8_t
+[INFO] UI16 => uint16_t, UInt16, ue_index_t, rrc_bitmask_t
+[INFO] UI32 => uint32_t, UInt32, uint32_t
+[INFO] UI64 => uint64_t, UInt64, uint64_t
+[INFO] I8   => int8_t, Int8, int8_t
+[INFO] I16  => int16_t, Int16, int16_t
+[INFO] I32  => int32_t, Int32, int32_t
+[INFO] I64  => int64_t, Int64, int64_t
+[INFO] SI8  => signed char, SInt8, sint8_t
+[INFO] SI16 => signed short, SInt16, sint16_t
+[INFO] SI32 => signed int, SInt32, sint32_t
+[INFO] SI64 => signed long, SInt64, sint64_t
+[INFO] Existed structs: []
+[INFO] Updating existed 5G structs: []
+[INFO] Updated existed 5G structs: []

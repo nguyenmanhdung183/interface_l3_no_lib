@@ -1,0 +1,1 @@
+typedef UInt16 rrc_bitmask_t;

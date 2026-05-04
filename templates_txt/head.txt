@@ -1,0 +1,18 @@
+static
+gnb_length_t
+gnb_il_get_{{parent_stripped}}_len 
+(
+    {{parent_stripped}}_t * p_{{parent_stripped}};
+);
+
+
+static
+gnb_return_et
+gnb_il_compose_{{parent_stripped}} 
+(
+    UInt8 **pp_buffer,
+    {{parent_stripped}}_t * p_{{parent_stripped}}
+);
+
+
+

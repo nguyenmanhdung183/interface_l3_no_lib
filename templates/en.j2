@@ -1,0 +1,239 @@
+/* get length */
+static
+gnb_length_t
+gnb_il_get_{{parent_stripped}}_len 
+(
+    {{parent_stripped}}_t * p_{{parent_stripped}}
+){
+    gnb_length_t length = 0;
+    GNB_ASSERT(p_{{parent_stripped}} != GNB_P_NULL);
+
+{% for field in fields %}
+/*----> {{field.type}} ~ {{field.name}} <----*/ {# #}
+{{ '\n' }}
+{#--------------------------CHECK PRESENT--------------------------#}
+    {% if field.present == "O" %}{# check if field is present #}
+    /* Optional element */
+    if(p_{{parent_stripped}}->bitmask & {{field.bitmask}})
+    {
+    {% endif %}{# end check present #}
+{# -------------------------CHECK H/B/L-------------------------------- #}
+    {% if field.range_check == "H" %}
+    /* Check for correct range [H - higher boundary] */
+    if(p_{{parent_stripped}}->{{field.name}} > {{field.max}})
+    {
+        GNB_CP_TRACE(GNB_WARNING, "dungnm26 - Parameter p_{{parent_stripped}}->{{field.name}} should be less than or equal to {{field.max}}"
+            "Incorrect value: %d", p_{{parent_stripped}}->{{field.name}});
+        return GNB_FAILURE;
+    {% elif field.range_check == "L" %}
+    /* Check for correct range [L - lower boundary] */
+    if(p_{{parent_stripped}}->{{field.name}} < {{field.min}})
+    {
+        GNB_CP_TRACE(GNB_WARNING, "dungnm26 - Parameter p_{{parent_stripped}}->{{field.name}} should be greater than or equal to {{field.min}}"
+            "Incorrect value: %d", p_{{parent_stripped}}->{{field.name}});
+        return GNB_FAILURE;
+    {% elif field.range_check == "B" %}
+    /* Check for correct range [B - both higher and lower boundary] */
+    if(p_{{parent_stripped}}->{{field.name}} < {{field.min}} || p_{{parent_stripped}}->{{field.name}} > {{field.max}}) 
+    {
+        GNB_CP_TRACE(GNB_WARNING, "dungnm26 - Parameter p_{{parent_stripped}}->{{field.name}} should be in range [ {{field.min}} - {{field.max}}]"
+            "Incorrect value: %d", p_{{parent_stripped}}->{{field.name}});
+        return GNB_FAILURE;
+    {% endif %}
+{#-------------------CLOSE BRACE------------#}
+    {% if field.range_check == "H" or field.range_check == "B" or field.range_check == "L" %}
+    }
+    {% endif %}
+{#------------------------------BASIC TYPE----------------------------#}
+        {% if field.range_check != "OCTET_STRING" and field.data_type == "PRIMITIVE" %}{# check if field is of primitive type #}
+    /* Get length of parameter of basic type */
+    length += (gnb_length_t)sizeof(p_{{parent_stripped}}->{{field.name}});
+        {% endif %}{# end check primitive type #}
+{#--------------------------------IE--------------------------#}
+        {% if field.data_type == "STRUCT" and field.range_check != "OCTET_STRING" %}{# check if field is of struct type #}
+    /* Get length of IE */
+    length += gnb_il_get_{{field.child_type_stripped}}_len(&p_{{parent_stripped}}->{{field.name}});
+        {% endif %}{# end check struct type #}
+{#---------------------------------OCTET STRING-------------------------#}
+{#***********************OCTET_STRING VARIABLE**********************#}
+        {% if field.range_check == "OCTET_STRING" and field.description == "VARIABLE" and field.data_type == "STRUCT" %}{# check if field is of OCTET_STRING_VARIABLE type #}
+    /* Get length of OCTET_STRING VARIABLE of IE */
+    {
+        gnb_counter_t loop;
+        for(loop = 0; loop < p_{{parent_stripped}}->{{field.length_ref}}; loop++)
+        {
+            length += gnb_il_get_{{field.child_type_stripped}}_len(&p_{{parent_stripped}}->{{field.name}}[loop]);
+        }
+    }
+        {% endif %}
+        {#-------------------------------#}
+        {% if field.range_check == "OCTET_STRING" and field.description == "VARIABLE" and field.data_type == "PRIMITIVE" %}{# check if field is of OCTET_STRING_VARIABLE type #}
+    /* Get length of OCTET_STRING VARIABLE of basic type elements */
+    length += (p_{{parent_stripped}}->{{field.length_ref}} * sizeof(p_{{parent_stripped}}->{{field.name}}[0]));
+        {% endif %}
+        {#-------------------------------#}
+    {#***********************OCTET_STRING FIXED**********************#}
+        {#-------------------------------#}
+        {% if field.range_check == "OCTET_STRING" and field.description == "FIXED" and field.data_type == "PRIMITIVE" %}{# check if field is of OCTET_STRING_VARIABLE type #}
+    /* Get length of OCTET_STRING FIXED of basic type elements */
+    length += sizeof(p_{{parent_stripped}}->{{field.name}});
+        {% endif %}
+                {#-------------------------------#}
+        {% if field.range_check == "OCTET_STRING" and field.description == "FIXED" and field.data_type == "STRUCT" %}{# check if field is of OCTET_STRING_VARIABLE type #}
+    /* Get length of OCTET_STRING FIXED of IEs */
+        //:))))
+    {
+        gnb_counter_t loop;
+        for(loop = 0; loop < ARRSIZE(p_{{parent_stripped}}->{{field.name}}); loop++)
+        {
+            length += gnb_il_get_{{field.child_type_stripped}}_len(&p_{{parent_stripped}}->{{field.name}}[loop]);
+        }
+    }
+        {% endif %}
+        {#-------------------------------#}
+{#-------------------------------CLOSE BRACE CHECK PRESENT---------------------------#}
+    {% if field.present == "O" %}{# check if field is present #}
+    }
+    {% endif %}{# end check present #}
+
+{% endfor %}
+
+    return length;
+}
+
+
+/* compose */
+static
+gnb_return_et
+gnb_il_compose_{{parent_stripped}}
+(
+    UInt8 **pp_buffer,
+    {{parent_stripped}}_t * p_{{parent_stripped}}
+){
+    GNB_ASSERT(pp_buffer != GNB_P_NULL);
+    GNB_ASSERT(*pp_buffer != GNB_P_NULL);
+    GNB_ASSERT(p_{{parent_stripped}} != GNB_P_NULL);
+
+    /* This function composes {{parent_stripped}} */
+    GNB_CP_TRACE(GNB_DETAILEDALL, "dungnm26 - Composing {{parent_stripped}}");
+
+{% for field in fields %}
+/*----> {{field.type}} ~ {{field.name}} <----*/ {# #}
+{{ '\n' }}
+{#--------------------------CHECK PRESENT--------------------------#}
+    {% if field.present == "O" %}{# check if field is present #}
+    /* Optional element */
+    if(p_{{parent_stripped}}->bitmask & {{field.bitmask}})
+    {
+    {% endif %}{# end check present #}
+{# -------------------------CHECK H/B/L-------------------------------- #}
+    {% if field.range_check == "H" %}
+    /* Check for correct range [H - higher boundary] */
+    if(p_{{parent_stripped}}->{{field.name}} > {{field.max}})
+    {
+        GNB_CP_TRACE(GNB_WARNING, "dungnm26 - Parameter p_{{parent_stripped}}->{{field.name}} should be less than or equal to {{field.max}}"
+            "Incorrect value: %d", p_{{parent_stripped}}->{{field.name}});
+        return GNB_FAILURE;
+    {% elif field.range_check == "L" %}
+    /* Check for correct range [L - lower boundary] */
+    if(p_{{parent_stripped}}->{{field.name}} < {{field.min}})
+    {
+        GNB_CP_TRACE(GNB_WARNING, "dungnm26 - Parameter p_{{parent_stripped}}->{{field.name}} should be greater than or equal to {{field.min}}"
+            "Incorrect value: %d", p_{{parent_stripped}}->{{field.name}});
+        return GNB_FAILURE;
+    {% elif field.range_check == "B" %}
+    /* Check for correct range [B - both higher and lower boundary] */
+    if(p_{{parent_stripped}}->{{field.name}} < {{field.min}} || p_{{parent_stripped}}->{{field.name}} > {{field.max}}) 
+    {
+        GNB_CP_TRACE(GNB_WARNING, "dungnm26 - Parameter p_{{parent_stripped}}->{{field.name}} should be in range [ {{field.min}} - {{field.max}}]"
+            "Incorrect value: %d", p_{{parent_stripped}}->{{field.name}});
+        return GNB_FAILURE;
+    {% endif %}
+{#-------------------CLOSE BRACE------------#}
+    {% if field.range_check == "H" or field.range_check == "B" or field.range_check == "L" %}
+    }
+    {% endif %}
+{#------------------------------BASIC TYPE----------------------------#}
+        {% if field.range_check != "OCTET_STRING" and field.data_type == "PRIMITIVE" %}{# check if field is of primitive type #}
+    /* Compose parameter of basic type */
+    gnb_cp_pack_{{ field.key | stdbit }}(*pp_buffer, &p_{{parent_stripped}}->{{field.name}}, "{{field.name}}");
+    *pp_buffer += sizeof(p_{{parent_stripped}}->{{field.name}});
+        {% endif %}{# end check primitive type #}
+{#--------------------------------IE--------------------------#}
+        {% if field.data_type == "STRUCT" and field.range_check != "OCTET_STRING" %}{# check if field is of struct type #}
+    /* Compose IE */
+    if(GNB_FAILURE == gnb_il_compose_{{field.child_type_stripped}}(pp_buffer, &p_{{parent_stripped}}->{{field.name}}))
+    {
+        return GNB_FAILURE;
+    }
+        {% endif %}{# end check struct type #}
+{#---------------------------------OCTET STRING-------------------------#}
+{#***********************OCTET_STRING VARIABLE**********************#}
+        {% if field.range_check == "OCTET_STRING" and field.description == "VARIABLE" and field.data_type == "STRUCT" %}{# check if field is of OCTET_STRING_VARIABLE type #}
+    /* Compose OCTET_STRING VARIABLE of IE */
+    {
+        gnb_counter_t loop;
+        for(loop = 0; loop < p_{{parent_stripped}}->{{field.length_ref}}; loop++)
+        {
+            if(GNB_FAILURE == gnb_il_compose_{{field.child_type_stripped}}(pp_buffer, &p_{{parent_stripped}}->{{field.name}}[loop]))
+            {
+                return GNB_FAILURE;
+            }
+        }
+    }
+        {% endif %}
+        {#-------------------------------#}
+        {% if field.range_check == "OCTET_STRING" and field.description == "VARIABLE" and field.data_type == "PRIMITIVE" %}{# check if field is of OCTET_STRING_VARIABLE type #}
+    /* Compose OCTET_STRING VARIABLE of basic type elements */
+    {
+        gnb_counter_t loop;
+        for(loop = 0; loop < p_{{parent_stripped}}->{{field.length_ref}}; loop++)
+        {
+            gnb_cp_pack_{{ field.key | stdbit }}(*pp_buffer, &p_{{parent_stripped}}->{{field.name}}[loop], "{{field.name}}[]");
+            *pp_buffer += sizeof({{ field.key | stdbit }});
+        }
+    }
+        {% endif %}
+        {#-------------------------------#}
+    {#***********************OCTET_STRING FIXED**********************#}
+        {#-------------------------------#}
+        {% if field.range_check == "OCTET_STRING" and field.description == "FIXED" and field.data_type == "PRIMITIVE" %}{# check if field is of OCTET_STRING_VARIABLE type #}
+    /* Compose of OCTET_STRING FIXED of basic type elements */
+    {
+        gnb_counter_t loop;
+        for(loop = 0; loop < ARRSIZE(p_{{parent_stripped}}->{{field.name}}); loop++)
+        {
+            gnb_cp_pack_{{ field.key | stdbit }}(*pp_buffer, &p_{{parent_stripped}}->{{field.name}}[loop], "{{field.name}}[]");
+            *pp_buffer += sizeof({{ field.key | stdbit }});
+        }
+    }
+        {% endif %}
+        {#-------------------------------#}
+        {% if field.range_check == "OCTET_STRING" and field.description == "FIXED" and field.data_type == "STRUCT" %}{# check if field is of OCTET_STRING_VARIABLE type #}
+    /* Compose of OCTET_STRING FIXED of basic type elements */
+    {
+        :))))
+        gnb_counter_t loop;
+        for(loop = 0; loop < ARRSIZE(p_{{parent_stripped}}->{{field.name}}); loop++)
+        {
+            if(GNB_FAILURE == gnb_il_compose_{{field.child_type_stripped}}(pp_buffer, &p_{{parent_stripped}}->{{field.name}}[loop]))
+            {
+                return GNB_FAILURE;
+            }
+        }
+        
+    }
+        {% endif %}
+        {#-------------------------------#}
+{#-------------------------------CLOSE BRACE CHECK PRESENT---------------------------#}
+    {% if field.present == "O" %}{# check if field is present #}
+    }
+    {% endif %}{# end check present #}
+
+{% endfor %}
+
+    return GNG_SUCCESS;
+}
+
+
+

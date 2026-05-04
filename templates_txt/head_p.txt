@@ -1,0 +1,11 @@
+static 
+gnb_return_et
+gnb_il_parse_{{parent_stripped}} 
+(
+    {{parent_stripped}}_t * p_{{parent_stripped}},
+    UInt8 * p_src,
+    SInt32 length_left,
+    SInt32 * p_length_read
+);
+
+
