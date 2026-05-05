@@ -75,7 +75,7 @@ gnb_il_parse_dunglieu
         return GNB_FAILURE;
     }
 
-    return GNG_SUCCESS;
+    return GNB_SUCCESS;
 }
 
 

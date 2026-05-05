@@ -346,7 +346,7 @@ gnb_il_compose_device_config
         
     /* Compose of OCTET_STRING FIXED of basic type elements */
     {
-        //:))))
+        :))))
         gnb_counter_t loop;
         for(loop = 0; loop < ARRSIZE(p_device_config->extra_data); loop++)
         {
@@ -465,7 +465,7 @@ gnb_il_compose_device_config
 
 
 
-    return GNG_SUCCESS;
+    return GNB_SUCCESS;
 }
 
 

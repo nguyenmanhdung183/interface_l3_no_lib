@@ -127,7 +127,7 @@ gnb_il_compose_octet_string
 
 
 
-    return GNG_SUCCESS;
+    return GNB_SUCCESS;
 }
 
 

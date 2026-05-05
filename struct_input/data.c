@@ -27,16 +27,24 @@ typedef struct {
     UInt16 hihi;
 } dunglieu_t;
 
+
+
+typedef struct {
+    UInt16 numbits; /*^ M, 0, N, 0, 0 ^*/
+    UInt8 data[5]; /*^ M, 0, OCTET_STRING, VARIABLE ^*/ /*^numbits^*/
+} manhdung_t;
+
 typedef struct
 {
 #define BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT (1 << 0)
 #define BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT (1 << 1)
-    rrc_bitmask_t bitmask;               /*^ BITMASK ^*/
+    rrc_bitmask_t present_bitmask;               /*^ BITMASK ^*/
     UInt8 band_id; /*^ M, 0, H, 0, 3 ^*/ /*band_et*/
     UInt16 frequency; /*^ M, 0, B, 0, 6000 ^*/                                                                       
     UInt8 optional_param_id; /*^ O, BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT, H, 0, 10 ^*/      
     UInt8 optional_param_data; /*^ O, BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT, B, 0, 255 ^*/ 
-    dunglieu_t NHL[100] /*^ M, 0, OCTET_STRING, FIXED ^*/
+    dunglieu_t NHL[2] /*^ M, 0, OCTET_STRING, FIXED ^*/
+    manhdung_t MD; /*^ M, 0, N, 0, 0 ^*/
 } band_parameters_t;
 
 /* ---------------------- Struct with OCTET STRING ---------------------- */

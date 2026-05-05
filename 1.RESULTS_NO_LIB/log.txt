@@ -11,11 +11,15 @@
 [INFO] SI32 => signed int, SInt32, sint32_t
 [INFO] SI64 => signed long, SInt64, sint64_t
 [INFO] Field p_device_config.rf_params.num_bands is a length reference, assigning 0
+[INFO] Field p_device_config.rf_params.bands[0].MD.numbits is a length reference, assigning 0
+[INFO] Field p_device_config.rf_params.bands[1].MD.numbits is a length reference, assigning 0
 [INFO] Field p_device_config.rf_params.config_blob[0].length_a is a length reference, assigning 0
 [INFO] Field p_device_config.rf_params.config_blob[1].length_a is a length reference, assigning 0
 [INFO] Field p_device_config.extra_data[0].length_a is a length reference, assigning 0
 [INFO] Field p_device_config.extra_data[1].length_a is a length reference, assigning 0
 [INFO] Field p_device_config.band_count is a length reference, assigning 0
+[INFO] Field p_device_config.band_data[0].MD.numbits is a length reference, assigning 0
+[INFO] Field p_device_config.band_data[1].MD.numbits is a length reference, assigning 0
 [INFO] Field p_device_config.plmn.plmn_count is a length reference, assigning 0
 [INFO] Existed structs: []
 [INFO] Updating existed 5G structs: []

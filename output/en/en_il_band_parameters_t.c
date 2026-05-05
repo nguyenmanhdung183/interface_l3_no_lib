@@ -8,14 +8,14 @@ gnb_il_get_band_parameters_len
     gnb_length_t length = 0;
     GNB_ASSERT(p_band_parameters != GNB_P_NULL);
 
-/*----> rrc_bitmask_t ~ bitmask <----*/ 
+/*----> rrc_bitmask_t ~ present_bitmask <----*/ 
 
 
 
 
 
     /* Get length of parameter of basic type */
-    length += (gnb_length_t)sizeof(p_band_parameters->bitmask);
+    length += (gnb_length_t)sizeof(p_band_parameters->present_bitmask);
 
 
 
@@ -83,7 +83,7 @@ gnb_il_get_band_parameters_len
 
 
     /* Optional element */
-    if(p_band_parameters->bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT)
+    if(p_band_parameters->present_bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT)
     {
 
     /* Check for correct range [H - higher boundary] */
@@ -113,7 +113,7 @@ gnb_il_get_band_parameters_len
 
 
     /* Optional element */
-    if(p_band_parameters->bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT)
+    if(p_band_parameters->present_bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT)
     {
 
     /* Check for correct range [B - both higher and lower boundary] */
@@ -165,6 +165,25 @@ gnb_il_get_band_parameters_len
         
 
 
+/*----> manhdung_t ~ MD <----*/ 
+
+
+
+
+
+
+    /* Get length of IE */
+    length += gnb_il_get_manhdung_len(&p_band_parameters->MD);
+
+
+        
+        
+    
+        
+                
+        
+
+
 
     return length;
 }
@@ -185,15 +204,15 @@ gnb_il_compose_band_parameters
     /* This function composes band_parameters */
     GNB_CP_TRACE(GNB_DETAILEDALL, "dungnm26 - Composing band_parameters");
 
-/*----> rrc_bitmask_t ~ bitmask <----*/ 
+/*----> rrc_bitmask_t ~ present_bitmask <----*/ 
 
 
 
 
 
     /* Compose parameter of basic type */
-    gnb_cp_pack_UInt16(*pp_buffer, &p_band_parameters->bitmask, "bitmask");
-    *pp_buffer += sizeof(p_band_parameters->bitmask);
+    gnb_cp_pack_UInt16(*pp_buffer, &p_band_parameters->present_bitmask, "present_bitmask");
+    *pp_buffer += sizeof(p_band_parameters->present_bitmask);
 
 
 
@@ -263,7 +282,7 @@ gnb_il_compose_band_parameters
 
 
     /* Optional element */
-    if(p_band_parameters->bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT)
+    if(p_band_parameters->present_bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT)
     {
 
     /* Check for correct range [H - higher boundary] */
@@ -294,7 +313,7 @@ gnb_il_compose_band_parameters
 
 
     /* Optional element */
-    if(p_band_parameters->bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT)
+    if(p_band_parameters->present_bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT)
     {
 
     /* Check for correct range [B - both higher and lower boundary] */
@@ -337,7 +356,7 @@ gnb_il_compose_band_parameters
         
     /* Compose of OCTET_STRING FIXED of basic type elements */
     {
-        //:))))
+        :))))
         gnb_counter_t loop;
         for(loop = 0; loop < ARRSIZE(p_band_parameters->NHL); loop++)
         {
@@ -351,8 +370,30 @@ gnb_il_compose_band_parameters
         
 
 
+/*----> manhdung_t ~ MD <----*/ 
 
-    return GNG_SUCCESS;
+
+
+
+
+
+    /* Compose IE */
+    if(GNB_FAILURE == gnb_il_compose_manhdung(pp_buffer, &p_band_parameters->MD))
+    {
+        return GNB_FAILURE;
+    }
+
+
+        
+        
+    
+        
+        
+        
+
+
+
+    return GNB_SUCCESS;
 }
 
 

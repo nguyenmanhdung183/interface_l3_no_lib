@@ -14,7 +14,7 @@ gnb_il_get_{{parent_stripped}}_len
 {#--------------------------CHECK PRESENT--------------------------#}
     {% if field.present == "O" %}{# check if field is present #}
     /* Optional element */
-    if(p_{{parent_stripped}}->bitmask & {{field.bitmask}})
+    if(p_{{parent_stripped}}->{{field.bitmask_name}} & {{field.bitmask}})
     {
     {% endif %}{# end check present #}
 {# -------------------------CHECK H/B/L-------------------------------- #}
@@ -123,7 +123,7 @@ gnb_il_compose_{{parent_stripped}}
 {#--------------------------CHECK PRESENT--------------------------#}
     {% if field.present == "O" %}{# check if field is present #}
     /* Optional element */
-    if(p_{{parent_stripped}}->bitmask & {{field.bitmask}})
+    if(p_{{parent_stripped}}->{{field.bitmask_name}} & {{field.bitmask}})
     {
     {% endif %}{# end check present #}
 {# -------------------------CHECK H/B/L-------------------------------- #}
@@ -212,7 +212,7 @@ gnb_il_compose_{{parent_stripped}}
         {% if field.range_check == "OCTET_STRING" and field.description == "FIXED" and field.data_type == "STRUCT" %}{# check if field is of OCTET_STRING_VARIABLE type #}
     /* Compose of OCTET_STRING FIXED of basic type elements */
     {
-        //:))))
+        :))))
         gnb_counter_t loop;
         for(loop = 0; loop < ARRSIZE(p_{{parent_stripped}}->{{field.name}}); loop++)
         {
@@ -232,7 +232,7 @@ gnb_il_compose_{{parent_stripped}}
 
 {% endfor %}
 
-    return GNG_SUCCESS;
+    return GNB_SUCCESS;
 }
 
 

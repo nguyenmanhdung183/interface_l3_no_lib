@@ -571,7 +571,9 @@ def load_csv_data(file_path):
                 "description":
                     clean_str(
                         row["description"]
-                    )
+                    ),
+                "bitmask_name":
+                       row["bitmask_name"]
             }
 
             grouped[parent]["fields"].append(
@@ -780,7 +782,7 @@ def handle_emit(field, field_path, registry, idx_gen, indent_lv):
     #     return emit_octet_string(field, field_path, indent_lv)
 
     if data_type == "PRIMITIVE":
-        lines.extend(emit_primitive(field, field_path, indent_lv))
+        lines.extend(emit_primitive(field, field_path, indent_lv, idx_gen))
 
     if data_type == "STRUCT":
         lines.extend(emit_struct(field, field_path, registry, idx_gen, indent_lv))
@@ -830,39 +832,51 @@ with open(DATA_EXCEL_PATH, newline="", encoding="utf-8") as f:
     ]
 
 # ================= PRIMITIVE =================
-def emit_primitive(field, field_path, indent_lv):
+def emit_primitive(field, field_path, indent_lv, idx_gen):
     lines = []
     name = field["name"]
     is_array = field["is_array"]
+    idx = next(idx_gen)
 
     hc_value = simple_hc_value(field.get("min"), field.get("max"))
     indent = "\t" * indent_lv
 
     if is_array: # octet string
+        lines.append(f"\n{indent}/*idx{idx} {name} S*/")
         if field.get("range_check") == "OCTET_STRING" and field.get("description").upper() == "VARIABLE":
-            # lines.append(f"{indent}/* {field_path} is an array primitive, assigning variale values */")
-            # lines.append(f"{indent}{field_path}[0] = {hc_value};")
-            # lines.append(f"{indent}{field_path}[1] = {hc_value};")
-            # lines.append(f"\n.....................\n")
-            # lines.append(f"{indent}{field_path}[max] = {hc_value};")
-            # lines.append(f"{indent}{field_path} = {{0x01, 0x02}}; /* example for octet string array */")
-            #lines.append(f"{indent}     //memcpy({field_path}, (uint8_t[]){{0x01, 0x02}}, 2); /* example for octet string array  */")
-            lines.append(f"""{indent}
-                //memcpy({field_path}, (uint8_t[]){{0x01, 0x02}}, 2); /* example for octet string array  */
-            for (int i = 0; i < {field_path.rsplit(".", 1)[0]}.{field.get("length_ref")}; i++) {{
+            if field.get("length_ref") == "numbits":
+                lines.append(
+                f"""{indent}//memcpy({field_path}, (uint8_t[]){{0x01, 0x02}}, 2); /* example for octet string array  */
+                for (int i = 0; i < {field_path.rsplit(".", 1)[0]}.{field.get("length_ref")}/8; i++) {{
                 {field_path}[i] = 0x01 + i; /* hardcode for variable array */
-            }}
-            """)
+                }}
+                """)
+                
+                
+            else:    
+                # lines.append(f"{indent}/* {field_path} is an array primitive, assigning variale values */")
+                # lines.append(f"{indent}{field_path}[0] = {hc_value};")
+                # lines.append(f"{indent}{field_path}[1] = {hc_value};")
+                # lines.append(f"\n.....................\n")
+                # lines.append(f"{indent}{field_path}[max] = {hc_value};")
+                # lines.append(f"{indent}{field_path} = {{0x01, 0x02}}; /* example for octet string array */")
+                #lines.append(f"{indent}     //memcpy({field_path}, (uint8_t[]){{0x01, 0x02}}, 2); /* example for octet string array  */")
+                lines.append(
+                f"""{indent}//memcpy({field_path}, (uint8_t[]){{0x01, 0x02}}, 2); /* example for octet string array  */
+                for (int i = 0; i < {field_path.rsplit(".", 1)[0]}.{field.get("length_ref")}; i++) {{
+                {field_path}[i] = 0x01 + i; /* hardcode for variable array */
+                }}
+                """)
 
         elif field.get("range_check") == "OCTET_STRING" and field.get("description").upper() == "FIXED":
             #lines.append(f"{indent}/* {field_path} is an array primitive, assigning fixed values */")
             #lines.append(f"{indent}{field_path} = {{0x01, 0x02}}; /* example for octet string array */")
-            lines.append(f"""{indent}
-                //memcpy({field_path}, (uint8_t[]){{0x01,...}}, {field.get("array_size")}); /* example for octet string array fixed */
+            lines.append(
+            f"""{indent}//memcpy({field_path}, (uint8_t[]){{0x01,...}}, {field.get("array_size")}); /* example for octet string array fixed */
             for (int i = 0; i <  {field.get("array_size")}; i++) {{
-                {field_path}[i] = 0x01 + i; /* hardcode for fixed array */
-            }}
-            """)
+            {field_path}[i] = 0x01 + i; /* hardcode for fixed array */
+            }}""")
+        lines.append(f"{indent}/*idx{idx} {name} E*/\n")
 
     else:
         # for row in (wb.itertuples()):
@@ -944,11 +958,12 @@ def emit_struct_hardcode(struct_name, struct_def, registry, path, idx_gen, inden
         name = field["name"]
         present = field.get("present")
         bitmask = field.get("bitmask")
+        bitmask_name = field.get("bitmask_name")
 
         if present == "O":
             lines.append(f"\n{indent}#if 1 /*idx{idx}: {name} S */")
             # lines.append(f"{indent}\tif ({path}.bitmask |= {bitmask})")
-            lines.append(f"{indent}\t{path}.bitmask |= {bitmask};")
+            lines.append(f"{indent}\t{path}.{bitmask_name} |= {bitmask};")
             #lines.append(f"{indent}\t{{")
             #inner_lv = indent_lv + 2
 
@@ -1069,12 +1084,20 @@ def emit_get_primitive(field, field_path, indent_lv, idx_gen):
             lines.append(f'{indent}\tfprintf(stderr, "{field_path}[%d] = 0x%02X\\n", j{IDX}, {field_path}[j{IDX}]);')
             lines.append(f"{indent}}}")
         elif desc == "VARIABLE":
-            lines.append(f"{indent}/* {field_path} is an array primitive, variable length */")
-            lines.append(f'{indent}fprintf(stderr, "[TRACE -O-V] {field_path} \\n\");')
-            lines.append(f"{indent}for (int j{IDX} = 0; j{IDX} < {field_path.rsplit(".", 1)[0]}.{field.get("length_ref")}; j{IDX}++)")
-            lines.append(f"{indent}{{")
-            lines.append(f'{indent}\tfprintf(stderr, "{field_path}[%d] = 0x%02X\\n", j{IDX}, {field_path}[j{IDX}]);')
-            lines.append(f"{indent}}}")
+            if field.get("length_ref") == "numbits":
+                lines.append(f"{indent}/* {field_path} is an array primitive, variable length in bits */")
+                lines.append(f'{indent}fprintf(stderr, "[TRACE -O-V] {field_path} \\n\");')
+                lines.append(f"{indent}for (int j{IDX} = 0; j{IDX} < {field_path.rsplit('.', 1)[0]}.{field.get('length_ref')}/8; j{IDX}++)")
+                lines.append(f"{indent}{{")
+                lines.append(f'{indent}\tfprintf(stderr, "{field_path}[%d] = 0x%02X\\n", j{IDX}, {field_path}[j{IDX}]);')
+                lines.append(f"{indent}}}")
+            else:
+                lines.append(f"{indent}/* {field_path} is an array primitive, variable length */")
+                lines.append(f'{indent}fprintf(stderr, "[TRACE -O-V] {field_path} \\n\");')
+                lines.append(f"{indent}for (int j{IDX} = 0; j{IDX} < {field_path.rsplit(".", 1)[0]}.{field.get("length_ref")}; j{IDX}++)")
+                lines.append(f"{indent}{{")
+                lines.append(f'{indent}\tfprintf(stderr, "{field_path}[%d] = 0x%02X\\n", j{IDX}, {field_path}[j{IDX}]);')
+                lines.append(f"{indent}}}")
         #idx_gen = gen_desc(idx_gen)
         IDX -= 1
         return lines
@@ -1107,9 +1130,10 @@ def emit_get_struct(field, field_path, registry, idx_gen, indent_lv):
     
     present = field.get("present")
     bitmask = field.get("bitmask")
+    bimask_name = field.get("bitmask_name")
     
     if present == "O":
-        lines.append(f"\n{indent}if ({field_path}.bitmask & {bitmask})")
+        lines.append(f"\n{indent}if ({field_path}.{bimask_name} & {bitmask})")
         lines.append(f"{indent}{{")
         
     field_path = f"{field_path}.{field['name']}"

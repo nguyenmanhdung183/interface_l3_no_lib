@@ -299,7 +299,7 @@ gnb_il_parse_device_config
         return GNB_FAILURE;
     }
 
-    return GNG_SUCCESS;
+    return GNB_SUCCESS;
 }
 
 

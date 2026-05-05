@@ -131,7 +131,7 @@ def export_to_csv(tree, output_file):
     header = [
         "parent", "child_type", "child_name", "data_type", "key",
         "is_array", "array_size", "length_ref",
-        "present", "bitmask", "range_check", "min", "max", "description"
+        "present", "bitmask", "range_check", "min", "max", "description", "bitmask_name"
     ]
 
     def flatten_tree(tree, rows=None):
@@ -161,7 +161,8 @@ def export_to_csv(tree, output_file):
                 meta.get("range_check", ""),
                 meta.get("min", ""),
                 meta.get("max", ""),
-                meta.get("description", "")
+                meta.get("description", ""),
+                ""
             ])
 
             if not field.get("primitive") and "children" in field:
@@ -279,7 +280,47 @@ def fill_missing_data_in_csv(file_path):
 
     print(f"[INFO] Filled missing length_ref in CSV: {file_path}")
 
+def fill_bitmask_name(file_path):
+    with open(file_path, "r", encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.DictReader(f))
 
+    if not rows:
+        return
+
+    headers = rows[0].keys()
+
+    parent_map = {}
+
+    # group by parent
+    for row in rows:
+        parent = row["parent"]
+        parent_map.setdefault(parent, []).append(row)
+
+    for parent, child_rows in parent_map.items():
+
+        # tìm field BITMASK
+        bitmask_field = None
+
+        for r in child_rows:
+            if r["present"] == "BITMASK":
+                bitmask_field = r["child_name"]
+                break
+
+        if not bitmask_field:
+            continue
+
+        # fill toàn bộ row trong parent
+        for r in child_rows:
+            r["bitmask_name"] = bitmask_field
+
+    # write back
+    with open(file_path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=headers)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    print(f"[INFO] Filled bitmask_name in CSV: {file_path}")
+    
 # =============================
 # MAIN
 # =============================
@@ -299,6 +340,9 @@ def main():
 
     export_to_csv(tree, DATA_EXCEL_PATH)
     fill_missing_data_in_csv(DATA_EXCEL_PATH)
+    fill_bitmask_name(DATA_EXCEL_PATH)
+    
+    
 
 
 if __name__ == "__main__":

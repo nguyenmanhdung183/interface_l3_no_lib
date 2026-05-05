@@ -14,7 +14,7 @@ gnb_il_get_{{parent_stripped}}_len
 {#--------------------------CHECK PRESENT--------------------------#}
     {% if field.present == "O" %}{# check if field is present #}
     /* Optional element */
-    if(p_{{parent_stripped}}->bitmask & {{field.bitmask}})
+    if(p_{{parent_stripped}}->{{field.bitmask_name}} & {{field.bitmask}})
     {
     {% endif %}{# end check present #}
 {# -------------------------CHECK H/B/L-------------------------------- #}
@@ -123,7 +123,7 @@ gnb_il_compose_{{parent_stripped}}
 {#--------------------------CHECK PRESENT--------------------------#}
     {% if field.present == "O" %}{# check if field is present #}
     /* Optional element */
-    if(p_{{parent_stripped}}->bitmask & {{field.bitmask}})
+    if(p_{{parent_stripped}}->{{field.bitmask_name}} & {{field.bitmask}})
     {
     {% endif %}{# end check present #}
 {# -------------------------CHECK H/B/L-------------------------------- #}
@@ -232,7 +232,7 @@ gnb_il_compose_{{parent_stripped}}
 
 {% endfor %}
 
-    return GNG_SUCCESS;
+    return GNB_SUCCESS;
 }
 
 

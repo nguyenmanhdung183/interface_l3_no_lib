@@ -72,7 +72,7 @@ gnb_il_compose_octet_string
 		        }
 	    }
 
-	    return GNG_SUCCESS;
+	    return GNB_SUCCESS;
 }
 
 /* get length */
@@ -149,7 +149,66 @@ gnb_il_compose_plmn_id
 		        }
 	    }
 
-	    return GNG_SUCCESS;
+	    return GNB_SUCCESS;
+}
+
+/* get length */
+static
+gnb_length_t
+gnb_il_get_manhdung_len 
+(
+    manhdung_t * p_manhdung
+){
+	    gnb_length_t length = 0;
+	    GNB_ASSERT(p_manhdung != GNB_P_NULL);
+
+	/*----> UInt16 ~ numbits <----*/ 
+
+	    /* Get length of parameter of basic type */
+	    length += (gnb_length_t)sizeof(p_manhdung->numbits);
+
+	/*----> UInt8 ~ data <----*/ 
+
+	    /* Get length of OCTET_STRING VARIABLE of basic type elements */
+	    length += (p_manhdung->numbits * sizeof(p_manhdung->data[0]));
+
+	    return length;
+}
+
+/* compose */
+static
+gnb_return_et
+gnb_il_compose_manhdung
+(
+    UInt8 **pp_buffer,
+    manhdung_t * p_manhdung
+){
+	    GNB_ASSERT(pp_buffer != GNB_P_NULL);
+	    GNB_ASSERT(*pp_buffer != GNB_P_NULL);
+	    GNB_ASSERT(p_manhdung != GNB_P_NULL);
+
+	    /* This function composes manhdung */
+	    GNB_CP_TRACE(GNB_DETAILEDALL, "dungnm26 - Composing manhdung");
+
+	/*----> UInt16 ~ numbits <----*/ 
+
+	    /* Compose parameter of basic type */
+	    gnb_cp_pack_UInt16(*pp_buffer, &p_manhdung->numbits, "numbits");
+	    *pp_buffer += sizeof(p_manhdung->numbits);
+
+	/*----> UInt8 ~ data <----*/ 
+
+	    /* Compose OCTET_STRING VARIABLE of basic type elements */
+	    {
+		        gnb_counter_t loop;
+		        for(loop = 0; loop < p_manhdung->numbits; loop++)
+		        {
+			            gnb_cp_pack_UInt8(*pp_buffer, &p_manhdung->data[loop], "data[]");
+			            *pp_buffer += sizeof(UInt8);
+		        }
+	    }
+
+	    return GNB_SUCCESS;
 }
 
 /* get length */
@@ -208,7 +267,7 @@ gnb_il_compose_dunglieu
 	    gnb_cp_pack_UInt16(*pp_buffer, &p_dunglieu->hihi, "hihi");
 	    *pp_buffer += sizeof(p_dunglieu->hihi);
 
-	    return GNG_SUCCESS;
+	    return GNB_SUCCESS;
 }
 
 /* get length */
@@ -221,10 +280,10 @@ gnb_il_get_band_parameters_len
 	    gnb_length_t length = 0;
 	    GNB_ASSERT(p_band_parameters != GNB_P_NULL);
 
-	/*----> rrc_bitmask_t ~ bitmask <----*/ 
+	/*----> rrc_bitmask_t ~ present_bitmask <----*/ 
 
 	    /* Get length of parameter of basic type */
-	    length += (gnb_length_t)sizeof(p_band_parameters->bitmask);
+	    length += (gnb_length_t)sizeof(p_band_parameters->present_bitmask);
 
 	/*----> UInt8 ~ band_id <----*/ 
 
@@ -257,7 +316,7 @@ gnb_il_get_band_parameters_len
 	/*----> UInt8 ~ optional_param_id <----*/ 
 
 	    /* Optional element */
-	    if(p_band_parameters->bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT)
+	    if(p_band_parameters->present_bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT)
 	    {
 
 		    /* Check for correct range [H - higher boundary] */
@@ -277,7 +336,7 @@ gnb_il_get_band_parameters_len
 	/*----> UInt8 ~ optional_param_data <----*/ 
 
 	    /* Optional element */
-	    if(p_band_parameters->bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT)
+	    if(p_band_parameters->present_bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT)
 	    {
 
 		    /* Check for correct range [B - both higher and lower boundary] */
@@ -306,6 +365,11 @@ gnb_il_get_band_parameters_len
 		        }
 	    }
 
+	/*----> manhdung_t ~ MD <----*/ 
+
+	    /* Get length of IE */
+	    length += gnb_il_get_manhdung_len(&p_band_parameters->MD);
+
 	    return length;
 }
 
@@ -324,11 +388,11 @@ gnb_il_compose_band_parameters
 	    /* This function composes band_parameters */
 	    GNB_CP_TRACE(GNB_DETAILEDALL, "dungnm26 - Composing band_parameters");
 
-	/*----> rrc_bitmask_t ~ bitmask <----*/ 
+	/*----> rrc_bitmask_t ~ present_bitmask <----*/ 
 
 	    /* Compose parameter of basic type */
-	    gnb_cp_pack_UInt16(*pp_buffer, &p_band_parameters->bitmask, "bitmask");
-	    *pp_buffer += sizeof(p_band_parameters->bitmask);
+	    gnb_cp_pack_UInt16(*pp_buffer, &p_band_parameters->present_bitmask, "present_bitmask");
+	    *pp_buffer += sizeof(p_band_parameters->present_bitmask);
 
 	/*----> UInt8 ~ band_id <----*/ 
 
@@ -363,7 +427,7 @@ gnb_il_compose_band_parameters
 	/*----> UInt8 ~ optional_param_id <----*/ 
 
 	    /* Optional element */
-	    if(p_band_parameters->bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT)
+	    if(p_band_parameters->present_bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT)
 	    {
 
 		    /* Check for correct range [H - higher boundary] */
@@ -384,7 +448,7 @@ gnb_il_compose_band_parameters
 	/*----> UInt8 ~ optional_param_data <----*/ 
 
 	    /* Optional element */
-	    if(p_band_parameters->bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT)
+	    if(p_band_parameters->present_bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT)
 	    {
 
 		    /* Check for correct range [B - both higher and lower boundary] */
@@ -406,7 +470,7 @@ gnb_il_compose_band_parameters
 
 	    /* Compose of OCTET_STRING FIXED of basic type elements */
 	    {
-		        //:))))
+		        :))))
 		        gnb_counter_t loop;
 		        for(loop = 0; loop < ARRSIZE(p_band_parameters->NHL); loop++)
 		        {
@@ -418,7 +482,15 @@ gnb_il_compose_band_parameters
 
 	    }
 
-	    return GNG_SUCCESS;
+	/*----> manhdung_t ~ MD <----*/ 
+
+	    /* Compose IE */
+	    if(GNB_FAILURE == gnb_il_compose_manhdung(pp_buffer, &p_band_parameters->MD))
+	    {
+		        return GNB_FAILURE;
+	    }
+
+	    return GNB_SUCCESS;
 }
 
 /* get length */
@@ -568,7 +640,7 @@ gnb_il_compose_rf_parameters
 
 		    /* Compose of OCTET_STRING FIXED of basic type elements */
 		    {
-			        //:))))
+			        :))))
 			        gnb_counter_t loop;
 			        for(loop = 0; loop < ARRSIZE(p_rf_parameters->config_blob); loop++)
 			        {
@@ -582,7 +654,7 @@ gnb_il_compose_rf_parameters
 
 	    }
 
-	    return GNG_SUCCESS;
+	    return GNB_SUCCESS;
 }
 
 /* get length */
@@ -750,7 +822,7 @@ gnb_il_compose_device_config
 
 		    /* Compose of OCTET_STRING FIXED of basic type elements */
 		    {
-			        //:))))
+			        :))))
 			        gnb_counter_t loop;
 			        for(loop = 0; loop < ARRSIZE(p_device_config->extra_data); loop++)
 			        {
@@ -813,5 +885,5 @@ gnb_il_compose_device_config
 		        return GNB_FAILURE;
 	    }
 
-	    return GNG_SUCCESS;
+	    return GNB_SUCCESS;
 }

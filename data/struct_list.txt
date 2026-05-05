@@ -1,5 +1,6 @@
 octet_string_t
 plmn_id_t
+manhdung_t
 dunglieu_t
 band_parameters_t
 rf_parameters_t

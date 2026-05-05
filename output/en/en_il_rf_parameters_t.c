@@ -306,7 +306,7 @@ gnb_il_compose_rf_parameters
         
     /* Compose of OCTET_STRING FIXED of basic type elements */
     {
-        //:))))
+        :))))
         gnb_counter_t loop;
         for(loop = 0; loop < ARRSIZE(p_rf_parameters->config_blob); loop++)
         {
@@ -322,7 +322,7 @@ gnb_il_compose_rf_parameters
     }
 
 
-    return GNG_SUCCESS;
+    return GNB_SUCCESS;
 }
 
 

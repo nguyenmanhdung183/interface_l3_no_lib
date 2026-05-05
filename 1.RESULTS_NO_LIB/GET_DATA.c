@@ -17,12 +17,12 @@ void trace_device_config_t(device_config_t *p_device_config)
 	    	for (int i1 = 0; i1 < p_device_config->rf_params.num_bands; i1++)
 	    	{
 		    		fprintf(stderr, "\n[TRACE] ===== band_parameters_t =====\n");
-		    		fprintf(stderr, "[TRACE] p_device_config->rf_params.bands[i1].bitmask = %u\n", p_device_config->rf_params.bands[i1].bitmask);
+		    		fprintf(stderr, "[TRACE] p_device_config->rf_params.bands[i1].present_bitmask = %u\n", p_device_config->rf_params.bands[i1].present_bitmask);
 		    		fprintf(stderr, "[TRACE] p_device_config->rf_params.bands[i1].band_id = %u\n", p_device_config->rf_params.bands[i1].band_id);
 		    		fprintf(stderr, "[TRACE] p_device_config->rf_params.bands[i1].frequency = %u\n", p_device_config->rf_params.bands[i1].frequency);
 		    		fprintf(stderr, "[TRACE] p_device_config->rf_params.bands[i1].optional_param_id = %u\n", p_device_config->rf_params.bands[i1].optional_param_id);
 		    		fprintf(stderr, "[TRACE] p_device_config->rf_params.bands[i1].optional_param_data = %u\n", p_device_config->rf_params.bands[i1].optional_param_data);
-		    		for (int i2 = 0; i2 < 100; i2++)
+		    		for (int i2 = 0; i2 < 2; i2++)
 		    		{
 			    			fprintf(stderr, "\n[TRACE] ===== dunglieu_t =====\n");
 			    			/* p_device_config->rf_params.bands[i1].NHL[i2].haha is an array primitive, fixed length */
@@ -32,6 +32,14 @@ void trace_device_config_t(device_config_t *p_device_config)
 				    				fprintf(stderr, "p_device_config->rf_params.bands[i1].NHL[i2].haha[%d] = 0x%02X\n", j3, p_device_config->rf_params.bands[i1].NHL[i2].haha[j3]);
 			    			}
 			    			fprintf(stderr, "[TRACE] p_device_config->rf_params.bands[i1].NHL[i2].hihi = %u\n", p_device_config->rf_params.bands[i1].NHL[i2].hihi);
+		    		}
+		    		fprintf(stderr, "\n[TRACE] ===== manhdung_t =====\n");
+		    		fprintf(stderr, "[TRACE] p_device_config->rf_params.bands[i1].MD.numbits = %u\n", p_device_config->rf_params.bands[i1].MD.numbits);
+		    		/* p_device_config->rf_params.bands[i1].MD.data is an array primitive, variable length in bits */
+		    		fprintf(stderr, "[TRACE -O-V] p_device_config->rf_params.bands[i1].MD.data \n");
+		    		for (int j2 = 0; j2 < p_device_config->rf_params.bands[i1].MD.numbits/8; j2++)
+		    		{
+			    			fprintf(stderr, "p_device_config->rf_params.bands[i1].MD.data[%d] = 0x%02X\n", j2, p_device_config->rf_params.bands[i1].MD.data[j2]);
 		    		}
 	    	}
 
@@ -69,12 +77,12 @@ void trace_device_config_t(device_config_t *p_device_config)
 	    	for (int i1 = 0; i1 < p_device_config->band_count; i1++)
 	    	{
 		    		fprintf(stderr, "\n[TRACE] ===== band_parameters_t =====\n");
-		    		fprintf(stderr, "[TRACE] p_device_config->band_data[i1].bitmask = %u\n", p_device_config->band_data[i1].bitmask);
+		    		fprintf(stderr, "[TRACE] p_device_config->band_data[i1].present_bitmask = %u\n", p_device_config->band_data[i1].present_bitmask);
 		    		fprintf(stderr, "[TRACE] p_device_config->band_data[i1].band_id = %u\n", p_device_config->band_data[i1].band_id);
 		    		fprintf(stderr, "[TRACE] p_device_config->band_data[i1].frequency = %u\n", p_device_config->band_data[i1].frequency);
 		    		fprintf(stderr, "[TRACE] p_device_config->band_data[i1].optional_param_id = %u\n", p_device_config->band_data[i1].optional_param_id);
 		    		fprintf(stderr, "[TRACE] p_device_config->band_data[i1].optional_param_data = %u\n", p_device_config->band_data[i1].optional_param_data);
-		    		for (int i2 = 0; i2 < 100; i2++)
+		    		for (int i2 = 0; i2 < 2; i2++)
 		    		{
 			    			fprintf(stderr, "\n[TRACE] ===== dunglieu_t =====\n");
 			    			/* p_device_config->band_data[i1].NHL[i2].haha is an array primitive, fixed length */
@@ -84,6 +92,14 @@ void trace_device_config_t(device_config_t *p_device_config)
 				    				fprintf(stderr, "p_device_config->band_data[i1].NHL[i2].haha[%d] = 0x%02X\n", j3, p_device_config->band_data[i1].NHL[i2].haha[j3]);
 			    			}
 			    			fprintf(stderr, "[TRACE] p_device_config->band_data[i1].NHL[i2].hihi = %u\n", p_device_config->band_data[i1].NHL[i2].hihi);
+		    		}
+		    		fprintf(stderr, "\n[TRACE] ===== manhdung_t =====\n");
+		    		fprintf(stderr, "[TRACE] p_device_config->band_data[i1].MD.numbits = %u\n", p_device_config->band_data[i1].MD.numbits);
+		    		/* p_device_config->band_data[i1].MD.data is an array primitive, variable length in bits */
+		    		fprintf(stderr, "[TRACE -O-V] p_device_config->band_data[i1].MD.data \n");
+		    		for (int j2 = 0; j2 < p_device_config->band_data[i1].MD.numbits/8; j2++)
+		    		{
+			    			fprintf(stderr, "p_device_config->band_data[i1].MD.data[%d] = 0x%02X\n", j2, p_device_config->band_data[i1].MD.data[j2]);
 		    		}
 	    	}
 	    	/* p_device_config->list_id is an array primitive, fixed length */

@@ -206,7 +206,7 @@ gnb_il_parse_rf_parameters
         return GNB_FAILURE;
     }
 
-    return GNG_SUCCESS;
+    return GNB_SUCCESS;
 }
 
 

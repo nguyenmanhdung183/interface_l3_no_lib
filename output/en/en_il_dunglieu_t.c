@@ -113,7 +113,7 @@ gnb_il_compose_dunglieu
 
 
 
-    return GNG_SUCCESS;
+    return GNB_SUCCESS;
 }
 
 

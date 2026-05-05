@@ -16,7 +16,7 @@ gnb_il_parse_band_parameters
     GNB_CP_TRACE(GNB_DETAILEDALL, "dungnm26 - Parsing band_parameters");
 
 
-/*----> rrc_bitmask_t ~ bitmask <----*/ 
+/*----> rrc_bitmask_t ~ present_bitmask <----*/ 
 
 
 
@@ -26,8 +26,8 @@ gnb_il_parse_band_parameters
         return GNB_FAILURE;
     }
     /* Parse/Unpack parameter of basic type */
-    gnb_cp_unpack_UInt16(&p_band_parameters->bitmask, p_src + *p_length_read, "bitmask");
-    *p_length_read += sizeof(p_band_parameters->bitmask);
+    gnb_cp_unpack_UInt16(&p_band_parameters->present_bitmask, p_src + *p_length_read, "present_bitmask");
+    *p_length_read += sizeof(p_band_parameters->present_bitmask);
     
 
 
@@ -112,7 +112,7 @@ gnb_il_parse_band_parameters
 
 
     /* Optional element */
-    if(p_band_parameters->bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT)
+    if(p_band_parameters->present_bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT)
     {
 
     if (*p_length_read + (SInt32)sizeof(UInt8) > length_left)
@@ -149,7 +149,7 @@ gnb_il_parse_band_parameters
 
 
     /* Optional element */
-    if(p_band_parameters->bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT)
+    if(p_band_parameters->present_bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT)
     {
 
     if (*p_length_read + (SInt32)sizeof(UInt8) > length_left)
@@ -216,6 +216,34 @@ gnb_il_parse_band_parameters
 
 
 
+/*----> manhdung_t ~ MD <----*/ 
+
+
+
+
+    /* Parse/Unpack IE */
+    if(GNB_FAILURE == gnb_il_parse_manhdung(
+        &p_band_parameters->MD, 
+        p_src + *p_length_read, 
+        length_left - *p_length_read,
+        &length_read))
+    {
+        return GNB_FAILURE;
+    }
+
+    *p_length_read += length_read;
+
+
+        
+        
+    
+        
+                
+        
+ 
+
+
+
 /* final check */
     if(*p_length_read > length_left)
     {
@@ -223,7 +251,7 @@ gnb_il_parse_band_parameters
         return GNB_FAILURE;
     }
 
-    return GNG_SUCCESS;
+    return GNB_SUCCESS;
 }
 
 

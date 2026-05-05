@@ -54,7 +54,7 @@ gnb_il_parse_octet_string
 		        return GNB_FAILURE;
 	    }
 
-	    return GNG_SUCCESS;
+	    return GNB_SUCCESS;
 }
 
 static
@@ -113,7 +113,57 @@ gnb_il_parse_plmn_id
 		        return GNB_FAILURE;
 	    }
 
-	    return GNG_SUCCESS;
+	    return GNB_SUCCESS;
+}
+
+static
+gnb_return_et
+gnb_il_parse_manhdung
+(
+    manhdung_t * p_manhdung,
+    UInt8 * p_src,
+    SInt32 length_left,
+    SInt32 * p_length_read
+){
+	    SInt32 length_read = 0;
+	    *p_length_read = 0;
+
+	    memset(p_manhdung, 0, sizeof(manhdung_t));
+
+	    /* This function parses manhdung */
+	    GNB_CP_TRACE(GNB_DETAILEDALL, "dungnm26 - Parsing manhdung");
+
+	/*----> UInt16 ~ numbits <----*/ 
+
+	    if (*p_length_read + (SInt32)sizeof(UInt16) > length_left)
+	    {
+		        GNB_CP_TRACE(GNB_WARNING, "dungnm26 - Incomming message damaged!");
+		        return GNB_FAILURE;
+	    }
+	    /* Parse/Unpack parameter of basic type */
+	    gnb_cp_unpack_UInt16(&p_manhdung->numbits, p_src + *p_length_read, "numbits");
+	    *p_length_read += sizeof(p_manhdung->numbits);
+
+	/*----> UInt8 ~ data <----*/ 
+
+	    /* Parse OCTET_STRING VARIABLE of basic type elements */
+	    {
+		        gnb_counter_t loop;
+		        for(loop = 0; loop < p_manhdung->numbits; loop++)
+		        {
+			            gnb_cp_unpack_UInt8((void*)(&p_manhdung->data[loop]), (void*)(p_src + *p_length_read), "data[]");
+			            *p_length_read += sizeof(UInt8);
+		        }
+	    }
+
+	/* final check */
+	    if(*p_length_read > length_left)
+	    {
+		        GNB_CP_TRACE(GNB_WARNING, "dungnm26 - Incomming message damaged!");
+		        return GNB_FAILURE;
+	    }
+
+	    return GNB_SUCCESS;
 }
 
 static
@@ -163,7 +213,7 @@ gnb_il_parse_dunglieu
 		        return GNB_FAILURE;
 	    }
 
-	    return GNG_SUCCESS;
+	    return GNB_SUCCESS;
 }
 
 static
@@ -183,7 +233,7 @@ gnb_il_parse_band_parameters
 	    /* This function parses band_parameters */
 	    GNB_CP_TRACE(GNB_DETAILEDALL, "dungnm26 - Parsing band_parameters");
 
-	/*----> rrc_bitmask_t ~ bitmask <----*/ 
+	/*----> rrc_bitmask_t ~ present_bitmask <----*/ 
 
 	    if (*p_length_read + (SInt32)sizeof(UInt16) > length_left)
 	    {
@@ -191,8 +241,8 @@ gnb_il_parse_band_parameters
 		        return GNB_FAILURE;
 	    }
 	    /* Parse/Unpack parameter of basic type */
-	    gnb_cp_unpack_UInt16(&p_band_parameters->bitmask, p_src + *p_length_read, "bitmask");
-	    *p_length_read += sizeof(p_band_parameters->bitmask);
+	    gnb_cp_unpack_UInt16(&p_band_parameters->present_bitmask, p_src + *p_length_read, "present_bitmask");
+	    *p_length_read += sizeof(p_band_parameters->present_bitmask);
 
 	/*----> UInt8 ~ band_id <----*/ 
 
@@ -237,7 +287,7 @@ gnb_il_parse_band_parameters
 	/*----> UInt8 ~ optional_param_id <----*/ 
 
 	    /* Optional element */
-	    if(p_band_parameters->bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT)
+	    if(p_band_parameters->present_bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT)
 	    {
 
 		    if (*p_length_read + (SInt32)sizeof(UInt8) > length_left)
@@ -263,7 +313,7 @@ gnb_il_parse_band_parameters
 	/*----> UInt8 ~ optional_param_data <----*/ 
 
 	    /* Optional element */
-	    if(p_band_parameters->bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT)
+	    if(p_band_parameters->present_bitmask & BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT)
 	    {
 
 		    if (*p_length_read + (SInt32)sizeof(UInt8) > length_left)
@@ -306,6 +356,20 @@ gnb_il_parse_band_parameters
 		        }
 	    }
 
+	/*----> manhdung_t ~ MD <----*/ 
+
+	    /* Parse/Unpack IE */
+	    if(GNB_FAILURE == gnb_il_parse_manhdung(
+	        &p_band_parameters->MD, 
+	        p_src + *p_length_read, 
+	        length_left - *p_length_read,
+	        &length_read))
+	    {
+		        return GNB_FAILURE;
+	    }
+
+	    *p_length_read += length_read;
+
 	/* final check */
 	    if(*p_length_read > length_left)
 	    {
@@ -313,7 +377,7 @@ gnb_il_parse_band_parameters
 		        return GNB_FAILURE;
 	    }
 
-	    return GNG_SUCCESS;
+	    return GNB_SUCCESS;
 }
 
 static
@@ -439,7 +503,7 @@ gnb_il_parse_rf_parameters
 		        return GNB_FAILURE;
 	    }
 
-	    return GNG_SUCCESS;
+	    return GNB_SUCCESS;
 }
 
 static
@@ -619,5 +683,5 @@ gnb_il_parse_device_config
 		        return GNB_FAILURE;
 	    }
 
-	    return GNG_SUCCESS;
+	    return GNB_SUCCESS;
 }

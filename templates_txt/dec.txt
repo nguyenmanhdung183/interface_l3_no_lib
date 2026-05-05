@@ -22,7 +22,7 @@ gnb_il_parse_{{parent_stripped}}
 {#--------------------------CHECK PRESENT--------------------------#}
     {% if field.present == "O" %}{# check if field is present #}
     /* Optional element */
-    if(p_{{parent_stripped}}->bitmask & {{field.bitmask}})
+    if(p_{{parent_stripped}}->{{field.bitmask_name}} & {{field.bitmask}})
     {
     {% endif %}{# end check present #}
 {#------------------------------BASIC TYPE----------------------------#}
@@ -159,7 +159,7 @@ gnb_il_parse_{{parent_stripped}}
         return GNB_FAILURE;
     }
 
-    return GNG_SUCCESS;
+    return GNB_SUCCESS;
 }
 
 

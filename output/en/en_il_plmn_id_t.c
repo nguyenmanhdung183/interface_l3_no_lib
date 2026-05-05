@@ -127,7 +127,7 @@ gnb_il_compose_plmn_id
 
 
 
-    return GNG_SUCCESS;
+    return GNB_SUCCESS;
 }
 
 

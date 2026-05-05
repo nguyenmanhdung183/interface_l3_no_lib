@@ -82,7 +82,7 @@ gnb_il_parse_octet_string
         return GNB_FAILURE;
     }
 
-    return GNG_SUCCESS;
+    return GNB_SUCCESS;
 }
 
 
