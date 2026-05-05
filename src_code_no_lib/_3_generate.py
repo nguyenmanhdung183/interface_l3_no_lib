@@ -1020,6 +1020,9 @@ xnap_return_et assign_hardcode_value_{struct_name}( {struct_name} *{root} )
 # =========================================================
 
 
+
+IDX = 0
+
 def gen_desc(start):
     i = start
     while True:
@@ -1044,6 +1047,7 @@ def get_printf_format(key):
 def emit_get_primitive(field, field_path, indent_lv, idx_gen):
     indent = "\t" * indent_lv
     lines = []
+    global IDX
     
 
     key = field.get("key", "UI32")
@@ -1056,21 +1060,23 @@ def emit_get_primitive(field, field_path, indent_lv, idx_gen):
     # ===== OCTET STRING =====
     if range_check == "OCTET_STRING":
         idx = next(idx_gen)
+        IDX +=1
         if desc == "FIXED":
             lines.append(f"{indent}/* {field_path} is an array primitive, fixed length */")
             lines.append(f"{indent}fprintf(stderr, \"[TRACE -O-F] {field_path}\\n\");")
-            lines.append(f"{indent}for (int j{idx} = 0; j{idx} < {field.get('array_size')}; j{idx}++)")
+            lines.append(f"{indent}for (int j{IDX} = 0; j{IDX} < {field.get('array_size')}; j{IDX}++)")
             lines.append(f"{indent}{{")
-            lines.append(f'{indent}\tfprintf(stderr, "{field_path}[%d] = 0x%02X\\n", j{idx}, {field_path}[j{idx}]);')
+            lines.append(f'{indent}\tfprintf(stderr, "{field_path}[%d] = 0x%02X\\n", j{IDX}, {field_path}[j{IDX}]);')
             lines.append(f"{indent}}}")
         elif desc == "VARIABLE":
             lines.append(f"{indent}/* {field_path} is an array primitive, variable length */")
             lines.append(f'{indent}fprintf(stderr, "[TRACE -O-V] {field_path} \\n\");')
-            lines.append(f"{indent}for (int j{idx} = 0; j{idx} < {field_path.rsplit(".", 1)[0]}.{field.get("length_ref")}; j{idx}++)")
+            lines.append(f"{indent}for (int j{IDX} = 0; j{IDX} < {field_path.rsplit(".", 1)[0]}.{field.get("length_ref")}; j{IDX}++)")
             lines.append(f"{indent}{{")
-            lines.append(f'{indent}\tfprintf(stderr, "{field_path}[%d] = 0x%02X\\n", j{idx}, {field_path}[j{idx}]);')
+            lines.append(f'{indent}\tfprintf(stderr, "{field_path}[%d] = 0x%02X\\n", j{IDX}, {field_path}[j{IDX}]);')
             lines.append(f"{indent}}}")
         #idx_gen = gen_desc(idx_gen)
+        IDX -= 1
         return lines
 
     # ===== ARRAY =====
@@ -1078,9 +1084,9 @@ def emit_get_primitive(field, field_path, indent_lv, idx_gen):
         size = 0
         size = field.get("array_size", 2)
 
-        lines.append(f"{indent}for (int k{idx} = 0; k{idx} < {size}; k{idx}++)")
+        lines.append(f"{indent}for (int k{IDX} = 0; k{IDX} < {size}; k{IDX}++)")
         lines.append(f"{indent}{{")
-        lines.append(f'{indent}\tfprintf(stderr, "[TRACE-ARR-????] {field_path}[%d] = {fmt}\\n", k{idx}, {field_path}[k{idx}]);')
+        lines.append(f'{indent}\tfprintf(stderr, "[TRACE-ARR-????] {field_path}[%d] = {fmt}\\n", k{IDX}, {field_path}[k{IDX}]);')
         lines.append(f"{indent}}}")
     else:
         lines.append(f'{indent}fprintf(stderr, "[TRACE] {field_path} = {fmt}\\n", {field_path});')
@@ -1094,6 +1100,7 @@ def emit_get_struct(field, field_path, registry, idx_gen, indent_lv):
     indent = "\t" * indent_lv
 
     #idx = next(idx_gen)
+    global IDX
 
     child = field["child_type"]
     child_def = registry["struct_hc"][child]
@@ -1117,10 +1124,14 @@ def emit_get_struct(field, field_path, registry, idx_gen, indent_lv):
             size = field.get("array_size")
 
         idx = next(idx_gen)
-        lines.append(f"{indent}for (int i{idx} = 0; i{idx} < {size}; i{idx}++)")
+        
+        
+        IDX += 1
+        
+        lines.append(f"{indent}for (int i{IDX} = 0; i{IDX} < {size}; i{IDX}++)")
         lines.append(f"{indent}{{")
 
-        sub_path = f"{field_path}[i{idx}]"
+        sub_path = f"{field_path}[i{IDX}]"
 
         lines.extend(
             emit_struct_trace(
@@ -1132,7 +1143,8 @@ def emit_get_struct(field, field_path, registry, idx_gen, indent_lv):
                 indent_lv + 1
             )
         )
-
+        IDX -= 1
+        
         lines.append(f"{indent}}}")
     else:
         lines.extend(
@@ -1206,6 +1218,7 @@ def emit_struct_trace(struct_name, struct_def, registry, path, idx_gen, indent_l
 # ================= WRAPPER =================
 def get_struct_wrapper(struct_name, registry):
     idx_gen = iter(range(10000))
+    
     
 
     struct_def = registry["struct_hc"][struct_name]
