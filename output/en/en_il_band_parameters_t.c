@@ -139,6 +139,32 @@ gnb_il_get_band_parameters_len
 
     }
 
+/*----> dunglieu_t ~ NHL <----*/ 
+
+
+
+
+
+
+
+
+        
+        
+    
+        
+                
+    /* Get length of OCTET_STRING FIXED of IEs */
+        //:))))
+    {
+        gnb_counter_t loop;
+        for(loop = 0; loop < ARRSIZE(p_band_parameters->NHL); loop++)
+        {
+            length += gnb_il_get_dunglieu_len(&p_band_parameters->NHL[loop]);
+        }
+    }
+        
+
+
 
     return length;
 }
@@ -294,6 +320,36 @@ gnb_il_compose_band_parameters
         
 
     }
+
+/*----> dunglieu_t ~ NHL <----*/ 
+
+
+
+
+
+
+
+
+        
+        
+    
+        
+        
+    /* Compose of OCTET_STRING FIXED of basic type elements */
+    {
+        //:))))
+        gnb_counter_t loop;
+        for(loop = 0; loop < ARRSIZE(p_band_parameters->NHL); loop++)
+        {
+            if(GNB_FAILURE == gnb_il_compose_dunglieu(pp_buffer, &p_band_parameters->NHL[loop]))
+            {
+                return GNB_FAILURE;
+            }
+        }
+        
+    }
+        
+
 
 
     return GNG_SUCCESS;

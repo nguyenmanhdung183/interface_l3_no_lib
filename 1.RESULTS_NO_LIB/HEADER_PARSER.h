@@ -1,8 +1,8 @@
 static 
 gnb_return_et
-gnb_il_parse_band_parameters 
+gnb_il_parse_dunglieu 
 (
-    band_parameters_t * p_band_parameters,
+    dunglieu_t * p_dunglieu,
     UInt8 * p_src,
     SInt32 length_left,
     SInt32 * p_length_read
@@ -10,9 +10,9 @@ gnb_il_parse_band_parameters
 
 static 
 gnb_return_et
-gnb_il_parse_plmn_id 
+gnb_il_parse_band_parameters 
 (
-    plmn_id_t * p_plmn_id,
+    band_parameters_t * p_band_parameters,
     UInt8 * p_src,
     SInt32 length_left,
     SInt32 * p_length_read
@@ -33,6 +33,16 @@ gnb_return_et
 gnb_il_parse_rf_parameters 
 (
     rf_parameters_t * p_rf_parameters,
+    UInt8 * p_src,
+    SInt32 length_left,
+    SInt32 * p_length_read
+);
+
+static 
+gnb_return_et
+gnb_il_parse_plmn_id 
+(
+    plmn_id_t * p_plmn_id,
     UInt8 * p_src,
     SInt32 length_left,
     SInt32 * p_length_read

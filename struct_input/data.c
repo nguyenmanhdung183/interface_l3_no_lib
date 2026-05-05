@@ -21,6 +21,12 @@ typedef enum
 } band_et;
 
 /* ---------------------- Inner Struct ---------------------- */
+
+typedef struct {
+    UInt8 haha[10]; /*^ M, 0, OCTET_STRING, FIXED ^*/
+    UInt16 hihi;
+} dunglieu_t;
+
 typedef struct
 {
 #define BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT (1 << 0)
@@ -30,6 +36,7 @@ typedef struct
     UInt16 frequency; /*^ M, 0, B, 0, 6000 ^*/                                                                       
     UInt8 optional_param_id; /*^ O, BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT, H, 0, 10 ^*/      
     UInt8 optional_param_data; /*^ O, BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT, B, 0, 255 ^*/ 
+    dunglieu_t NHL[100] /*^ M, 0, OCTET_STRING, FIXED ^*/
 } band_parameters_t;
 
 /* ---------------------- Struct with OCTET STRING ---------------------- */
@@ -72,7 +79,7 @@ typedef struct _rf_parameters_t
     UInt8 nmd[183];         /*^ M, 0, OCTET_STRING, FIXED, H, 0, 10 ^*/
     UInt8 num_bands;                    /*^ M, 0, B, 0, MAX_BANDS ^*/
     band_parameters_t bands[MAX_BANDS]; /*^ M, 0, OCTET_STRING, VARIABLE ^*/ /*^ num_bands ^*/
-    octet_string_t config_blob[100];         /*^ O, RF_PARAM_BITMASK_CONFIG_BLOB_PRESENT, OCTET_STRING, FIXED ^*/
+    octet_string_t config_blob[99];         /*^ O, RF_PARAM_BITMASK_CONFIG_BLOB_PRESENT, OCTET_STRING, FIXED ^*/
 } rf_parameters_t;
 
 

@@ -4,6 +4,7 @@ band_parameters_t,UInt8,band_id,PRIMITIVE,UI8,False,,,M,0,H,0,3,
 band_parameters_t,UInt16,frequency,PRIMITIVE,UI16,False,,,M,0,B,0,6000,
 band_parameters_t,UInt8,optional_param_id,PRIMITIVE,UI8,False,,,O,BAND_PARAM_BITMASK_OPTIONAL_PARAM_ID_PRESENT,H,0,10,
 band_parameters_t,UInt8,optional_param_data,PRIMITIVE,UI8,False,,,O,BAND_PARAM_BITMASK_OPTIONAL_PARAM_DATA_PRESENT,B,0,255,
+band_parameters_t,dunglieu_t,NHL,STRUCT,,True,100,,M,0,OCTET_STRING,,,FIXED
 device_config_t,UInt16,bitmask,PRIMITIVE,UI16,False,,,BITMASK,,,,,
 device_config_t,UInt8,version,PRIMITIVE,UI8,False,,,M,0,B,0,255,
 device_config_t,rf_parameters_t,rf_params,STRUCT,,False,,,M,0,N,0,0,
@@ -13,6 +14,8 @@ device_config_t,UInt16,band_count,PRIMITIVE,UI16,False,,,M,0,B,0,MAX_COUNT,
 device_config_t,band_parameters_t,band_data,STRUCT,,True,100,band_count,M,0,OCTET_STRING,,,VARIABLE
 device_config_t,UInt8,list_id,PRIMITIVE,UI8,True,80,,M,0,OCTET_STRING,,,FIXED
 device_config_t,plmn_id_t,plmn,STRUCT,,False,,,M,0,N,0,0,
+dunglieu_t,UInt8,haha,PRIMITIVE,UI8,True,10,,M,0,OCTET_STRING,,,FIXED
+dunglieu_t,UInt16,hihi,PRIMITIVE,UI16,False,,,,,,,,
 octet_string_t,UInt8,length_a,PRIMITIVE,UI8,False,,,M,0,B,0,MAX_OCTET_STRING_LEN,
 octet_string_t,UInt16,data_a,PRIMITIVE,UI16,True,MAX_OCTET_STRING_LEN,length_a,M,0,OCTET_STRING,,,VARIABLE
 plmn_id_t,UInt8,plmn_count,PRIMITIVE,UI8,False,,,M,0,B,0,MAX_OCTET_STRING_LEN,
@@ -22,4 +25,4 @@ rf_parameters_t,UInt16,id,PRIMITIVE,UI16,False,,,M,0,N,0,1000,
 rf_parameters_t,UInt8,nmd,PRIMITIVE,UI8,True,183,,M,0,OCTET_STRING,,,FIXED
 rf_parameters_t,UInt8,num_bands,PRIMITIVE,UI8,False,,,M,0,B,0,MAX_BANDS,
 rf_parameters_t,band_parameters_t,bands,STRUCT,,True,MAX_BANDS,num_bands,M,0,OCTET_STRING,,,VARIABLE
-rf_parameters_t,octet_string_t,config_blob,STRUCT,,True,100,,O,RF_PARAM_BITMASK_CONFIG_BLOB_PRESENT,OCTET_STRING,,,FIXED
+rf_parameters_t,octet_string_t,config_blob,STRUCT,,True,99,,O,RF_PARAM_BITMASK_CONFIG_BLOB_PRESENT,OCTET_STRING,,,FIXED

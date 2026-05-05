@@ -182,6 +182,40 @@ gnb_il_parse_band_parameters
 
     }
 
+/*----> dunglieu_t ~ NHL <----*/ 
+
+
+
+
+
+
+        
+        
+    
+        
+                
+    /* Parse of OCTET_STRING FIXED of IEs */
+    {
+        //:))))
+        gnb_counter_t loop;
+        for(loop = 0; loop < ARRSIZE(p_band_parameters->NHL); loop++)
+        {
+            if(GNB_FAILURE == gnb_il_parse_dunglieu(
+                &p_band_parameters->NHL[loop], 
+                p_src + *p_length_read, 
+                length_left - *p_length_read,
+                &length_read))
+            {
+                return GNB_FAILURE;
+            }
+            *p_length_read += length_read;
+        }
+    }
+        
+ 
+
+
+
 /* final check */
     if(*p_length_read > length_left)
     {
