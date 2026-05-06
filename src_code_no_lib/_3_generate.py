@@ -1407,7 +1407,9 @@ def emit_tree_primitive(field, field_path, indent_lv):
 
         lines.append(f"{indent}for (int i = 0; i < {size}; i++)")
         lines.append(f"{indent}{{")
-        lines.append(f'{indent}\ttrace_field_hex({indent_lv+1}, "{name}[i]", {field_path}[i]);')
+        #lines.append(f'{indent}\ttrace_field_hex({indent_lv+1}, "{name}[i]", {field_path}[i]);')
+        lines.append(f'{indent}\ttrace_indent({indent_lv+1});')
+        lines.append(f'{indent}\tfprintf(stderr, "├── {name}[%d] = 0x%02X\\n", i, {field_path}[i]);')
         lines.append(f"{indent}}}")
     else:
         lines.append(f'{indent}trace_field_u32({indent_lv}, "{name}", {field_path});')
@@ -1422,18 +1424,17 @@ def emit_tree_struct(field, field_path, registry, indent_lv):
 
     indent = "\t" * indent_lv
 
-    # node
     lines.append(f'{indent}trace_indent({indent_lv});')
     lines.append(f'{indent}fprintf(stderr, "├── {name} : {child}\\n");')
-
-    # enter struct
-    lines.append(f'{indent}trace_node({indent_lv+1}, "{child}");')
 
     if field["is_array"]:
         size = field.get("array_size", 2)
 
         lines.append(f"{indent}for (int i = 0; i < {size}; i++)")
         lines.append(f"{indent}{{")
+
+        lines.append(f'{indent}\ttrace_indent({indent_lv+1});')
+        lines.append(f'{indent}\tfprintf(stderr, "├── {name}[%d]\\n", i);')
 
         sub_path = f"{field_path}[i]"
 
@@ -1448,7 +1449,6 @@ def emit_tree_struct(field, field_path, registry, indent_lv):
         )
 
     return lines
-
 
 def emit_tree_struct_body(struct_name, registry, path, indent_lv):
     lines = []

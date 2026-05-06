@@ -1,8 +1,8 @@
-octet_string_t
-dunglieu_t
-manhdung_t
-band_parameters_t
-rf_parameters_t
 plmn_id_t
+manhdung_t
+dunglieu_t
+band_parameters_t
+octet_string_t
+rf_parameters_t
 TEST_PRINT
 device_config_t

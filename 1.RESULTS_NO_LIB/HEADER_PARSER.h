@@ -1,18 +1,8 @@
 static 
 gnb_return_et
-gnb_il_parse_octet_string 
+gnb_il_parse_plmn_id 
 (
-    octet_string_t * p_octet_string,
-    UInt8 * p_src,
-    SInt32 length_left,
-    SInt32 * p_length_read
-);
-
-static 
-gnb_return_et
-gnb_il_parse_dunglieu 
-(
-    dunglieu_t * p_dunglieu,
+    plmn_id_t * p_plmn_id,
     UInt8 * p_src,
     SInt32 length_left,
     SInt32 * p_length_read
@@ -30,6 +20,16 @@ gnb_il_parse_manhdung
 
 static 
 gnb_return_et
+gnb_il_parse_dunglieu 
+(
+    dunglieu_t * p_dunglieu,
+    UInt8 * p_src,
+    SInt32 length_left,
+    SInt32 * p_length_read
+);
+
+static 
+gnb_return_et
 gnb_il_parse_band_parameters 
 (
     band_parameters_t * p_band_parameters,
@@ -40,9 +40,9 @@ gnb_il_parse_band_parameters
 
 static 
 gnb_return_et
-gnb_il_parse_rf_parameters 
+gnb_il_parse_octet_string 
 (
-    rf_parameters_t * p_rf_parameters,
+    octet_string_t * p_octet_string,
     UInt8 * p_src,
     SInt32 length_left,
     SInt32 * p_length_read
@@ -50,9 +50,9 @@ gnb_il_parse_rf_parameters
 
 static 
 gnb_return_et
-gnb_il_parse_plmn_id 
+gnb_il_parse_rf_parameters 
 (
-    plmn_id_t * p_plmn_id,
+    rf_parameters_t * p_rf_parameters,
     UInt8 * p_src,
     SInt32 length_left,
     SInt32 * p_length_read
