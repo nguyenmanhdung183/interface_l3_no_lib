@@ -116,4 +116,6 @@ void trace_device_config_t(device_config_t *p_device_config)
 	    	{
 		    		fprintf(stderr, "p_device_config->plmn.data[%d] = 0x%02X\n", j1, p_device_config->plmn.data[j1]);
 	    	}
+	    	fprintf(stderr, "\n[TRACE] ===== TEST_PRINT =====\n");
+	    	fprintf(stderr, "[TRACE] p_device_config->test_print.data = %u\n", p_device_config->test_print.data);
 }

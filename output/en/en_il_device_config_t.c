@@ -214,6 +214,25 @@ gnb_il_get_device_config_len
         
 
 
+/*----> TEST_PRINT ~ test_print <----*/ 
+
+
+
+
+
+
+    /* Get length of IE */
+    length += gnb_il_get_TEST_PRINT_len(&p_device_config->test_print);
+
+
+        
+        
+    
+        
+                
+        
+
+
 
     return length;
 }
@@ -451,6 +470,28 @@ gnb_il_compose_device_config
 
     /* Compose IE */
     if(GNB_FAILURE == gnb_il_compose_plmn_id(pp_buffer, &p_device_config->plmn))
+    {
+        return GNB_FAILURE;
+    }
+
+
+        
+        
+    
+        
+        
+        
+
+
+/*----> TEST_PRINT ~ test_print <----*/ 
+
+
+
+
+
+
+    /* Compose IE */
+    if(GNB_FAILURE == gnb_il_compose_TEST_PRINT(pp_buffer, &p_device_config->test_print))
     {
         return GNB_FAILURE;
     }

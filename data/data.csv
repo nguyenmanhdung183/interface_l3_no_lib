@@ -1,4 +1,5 @@
 parent,child_type,child_name,data_type,key,is_array,array_size,length_ref,present,bitmask,range_check,min,max,description,bitmask_name
+TEST_PRINT,UInt8,data,PRIMITIVE,UI8,False,,,M,0,N,0,0,,
 band_parameters_t,rrc_bitmask_t,present_bitmask,PRIMITIVE,UI16,False,,,BITMASK,,,,,,present_bitmask
 band_parameters_t,UInt8,band_id,PRIMITIVE,UI8,False,,,M,0,H,0,3,,present_bitmask
 band_parameters_t,UInt16,frequency,PRIMITIVE,UI16,False,,,M,0,B,0,6000,,present_bitmask
@@ -15,6 +16,7 @@ device_config_t,UInt16,band_count,PRIMITIVE,UI16,False,,,M,0,B,0,MAX_COUNT,,bitm
 device_config_t,band_parameters_t,band_data,STRUCT,,True,100,band_count,M,0,OCTET_STRING,,,VARIABLE,bitmask
 device_config_t,UInt8,list_id,PRIMITIVE,UI8,True,80,,M,0,OCTET_STRING,,,FIXED,bitmask
 device_config_t,plmn_id_t,plmn,STRUCT,,False,,,M,0,N,0,0,,bitmask
+device_config_t,TEST_PRINT,test_print,STRUCT,,False,,,M,0,N,0,0,,bitmask
 dunglieu_t,UInt8,haha,PRIMITIVE,UI8,True,10,,M,0,OCTET_STRING,,,FIXED,
 dunglieu_t,UInt16,hihi,PRIMITIVE,UI16,False,,,,,,,,,
 manhdung_t,UInt16,numbits,PRIMITIVE,UI16,False,,,M,0,N,0,0,,

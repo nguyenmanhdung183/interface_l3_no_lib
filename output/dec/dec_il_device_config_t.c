@@ -292,6 +292,34 @@ gnb_il_parse_device_config
 
 
 
+/*----> TEST_PRINT ~ test_print <----*/ 
+
+
+
+
+    /* Parse/Unpack IE */
+    if(GNB_FAILURE == gnb_il_parse_TEST_PRINT(
+        &p_device_config->test_print, 
+        p_src + *p_length_read, 
+        length_left - *p_length_read,
+        &length_read))
+    {
+        return GNB_FAILURE;
+    }
+
+    *p_length_read += length_read;
+
+
+        
+        
+    
+        
+                
+        
+ 
+
+
+
 /* final check */
     if(*p_length_read > length_left)
     {

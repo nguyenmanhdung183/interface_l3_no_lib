@@ -78,31 +78,22 @@ gnb_il_compose_octet_string
 /* get length */
 static
 gnb_length_t
-gnb_il_get_plmn_id_len 
+gnb_il_get_dunglieu_len 
 (
-    plmn_id_t * p_plmn_id
+    dunglieu_t * p_dunglieu
 ){
 	    gnb_length_t length = 0;
-	    GNB_ASSERT(p_plmn_id != GNB_P_NULL);
+	    GNB_ASSERT(p_dunglieu != GNB_P_NULL);
 
-	/*----> UInt8 ~ plmn_count <----*/ 
+	/*----> UInt8 ~ haha <----*/ 
 
-	    /* Check for correct range [B - both higher and lower boundary] */
-	    if(p_plmn_id->plmn_count < 0 || p_plmn_id->plmn_count > MAX_OCTET_STRING_LEN) 
-	    {
-		        GNB_CP_TRACE(GNB_WARNING, "dungnm26 - Parameter p_plmn_id->plmn_count should be in range [ 0 - MAX_OCTET_STRING_LEN]"
-		            "Incorrect value: %d", p_plmn_id->plmn_count);
-		        return GNB_FAILURE;
+	    /* Get length of OCTET_STRING FIXED of basic type elements */
+	    length += sizeof(p_dunglieu->haha);
 
-	    }
+	/*----> UInt16 ~ hihi <----*/ 
 
 	    /* Get length of parameter of basic type */
-	    length += (gnb_length_t)sizeof(p_plmn_id->plmn_count);
-
-	/*----> UInt8 ~ data <----*/ 
-
-	    /* Get length of OCTET_STRING VARIABLE of basic type elements */
-	    length += (p_plmn_id->plmn_count * sizeof(p_plmn_id->data[0]));
+	    length += (gnb_length_t)sizeof(p_dunglieu->hihi);
 
 	    return length;
 }
@@ -110,44 +101,35 @@ gnb_il_get_plmn_id_len
 /* compose */
 static
 gnb_return_et
-gnb_il_compose_plmn_id
+gnb_il_compose_dunglieu
 (
     UInt8 **pp_buffer,
-    plmn_id_t * p_plmn_id
+    dunglieu_t * p_dunglieu
 ){
 	    GNB_ASSERT(pp_buffer != GNB_P_NULL);
 	    GNB_ASSERT(*pp_buffer != GNB_P_NULL);
-	    GNB_ASSERT(p_plmn_id != GNB_P_NULL);
+	    GNB_ASSERT(p_dunglieu != GNB_P_NULL);
 
-	    /* This function composes plmn_id */
-	    GNB_CP_TRACE(GNB_DETAILEDALL, "dungnm26 - Composing plmn_id");
+	    /* This function composes dunglieu */
+	    GNB_CP_TRACE(GNB_DETAILEDALL, "dungnm26 - Composing dunglieu");
 
-	/*----> UInt8 ~ plmn_count <----*/ 
+	/*----> UInt8 ~ haha <----*/ 
 
-	    /* Check for correct range [B - both higher and lower boundary] */
-	    if(p_plmn_id->plmn_count < 0 || p_plmn_id->plmn_count > MAX_OCTET_STRING_LEN) 
-	    {
-		        GNB_CP_TRACE(GNB_WARNING, "dungnm26 - Parameter p_plmn_id->plmn_count should be in range [ 0 - MAX_OCTET_STRING_LEN]"
-		            "Incorrect value: %d", p_plmn_id->plmn_count);
-		        return GNB_FAILURE;
-
-	    }
-
-	    /* Compose parameter of basic type */
-	    gnb_cp_pack_UInt8(*pp_buffer, &p_plmn_id->plmn_count, "plmn_count");
-	    *pp_buffer += sizeof(p_plmn_id->plmn_count);
-
-	/*----> UInt8 ~ data <----*/ 
-
-	    /* Compose OCTET_STRING VARIABLE of basic type elements */
+	    /* Compose of OCTET_STRING FIXED of basic type elements */
 	    {
 		        gnb_counter_t loop;
-		        for(loop = 0; loop < p_plmn_id->plmn_count; loop++)
+		        for(loop = 0; loop < ARRSIZE(p_dunglieu->haha); loop++)
 		        {
-			            gnb_cp_pack_UInt8(*pp_buffer, &p_plmn_id->data[loop], "data[]");
+			            gnb_cp_pack_UInt8(*pp_buffer, &p_dunglieu->haha[loop], "haha[]");
 			            *pp_buffer += sizeof(UInt8);
 		        }
 	    }
+
+	/*----> UInt16 ~ hihi <----*/ 
+
+	    /* Compose parameter of basic type */
+	    gnb_cp_pack_UInt16(*pp_buffer, &p_dunglieu->hihi, "hihi");
+	    *pp_buffer += sizeof(p_dunglieu->hihi);
 
 	    return GNB_SUCCESS;
 }
@@ -207,65 +189,6 @@ gnb_il_compose_manhdung
 			            *pp_buffer += sizeof(UInt8);
 		        }
 	    }
-
-	    return GNB_SUCCESS;
-}
-
-/* get length */
-static
-gnb_length_t
-gnb_il_get_dunglieu_len 
-(
-    dunglieu_t * p_dunglieu
-){
-	    gnb_length_t length = 0;
-	    GNB_ASSERT(p_dunglieu != GNB_P_NULL);
-
-	/*----> UInt8 ~ haha <----*/ 
-
-	    /* Get length of OCTET_STRING FIXED of basic type elements */
-	    length += sizeof(p_dunglieu->haha);
-
-	/*----> UInt16 ~ hihi <----*/ 
-
-	    /* Get length of parameter of basic type */
-	    length += (gnb_length_t)sizeof(p_dunglieu->hihi);
-
-	    return length;
-}
-
-/* compose */
-static
-gnb_return_et
-gnb_il_compose_dunglieu
-(
-    UInt8 **pp_buffer,
-    dunglieu_t * p_dunglieu
-){
-	    GNB_ASSERT(pp_buffer != GNB_P_NULL);
-	    GNB_ASSERT(*pp_buffer != GNB_P_NULL);
-	    GNB_ASSERT(p_dunglieu != GNB_P_NULL);
-
-	    /* This function composes dunglieu */
-	    GNB_CP_TRACE(GNB_DETAILEDALL, "dungnm26 - Composing dunglieu");
-
-	/*----> UInt8 ~ haha <----*/ 
-
-	    /* Compose of OCTET_STRING FIXED of basic type elements */
-	    {
-		        gnb_counter_t loop;
-		        for(loop = 0; loop < ARRSIZE(p_dunglieu->haha); loop++)
-		        {
-			            gnb_cp_pack_UInt8(*pp_buffer, &p_dunglieu->haha[loop], "haha[]");
-			            *pp_buffer += sizeof(UInt8);
-		        }
-	    }
-
-	/*----> UInt16 ~ hihi <----*/ 
-
-	    /* Compose parameter of basic type */
-	    gnb_cp_pack_UInt16(*pp_buffer, &p_dunglieu->hihi, "hihi");
-	    *pp_buffer += sizeof(p_dunglieu->hihi);
 
 	    return GNB_SUCCESS;
 }
@@ -660,6 +583,83 @@ gnb_il_compose_rf_parameters
 /* get length */
 static
 gnb_length_t
+gnb_il_get_plmn_id_len 
+(
+    plmn_id_t * p_plmn_id
+){
+	    gnb_length_t length = 0;
+	    GNB_ASSERT(p_plmn_id != GNB_P_NULL);
+
+	/*----> UInt8 ~ plmn_count <----*/ 
+
+	    /* Check for correct range [B - both higher and lower boundary] */
+	    if(p_plmn_id->plmn_count < 0 || p_plmn_id->plmn_count > MAX_OCTET_STRING_LEN) 
+	    {
+		        GNB_CP_TRACE(GNB_WARNING, "dungnm26 - Parameter p_plmn_id->plmn_count should be in range [ 0 - MAX_OCTET_STRING_LEN]"
+		            "Incorrect value: %d", p_plmn_id->plmn_count);
+		        return GNB_FAILURE;
+
+	    }
+
+	    /* Get length of parameter of basic type */
+	    length += (gnb_length_t)sizeof(p_plmn_id->plmn_count);
+
+	/*----> UInt8 ~ data <----*/ 
+
+	    /* Get length of OCTET_STRING VARIABLE of basic type elements */
+	    length += (p_plmn_id->plmn_count * sizeof(p_plmn_id->data[0]));
+
+	    return length;
+}
+
+/* compose */
+static
+gnb_return_et
+gnb_il_compose_plmn_id
+(
+    UInt8 **pp_buffer,
+    plmn_id_t * p_plmn_id
+){
+	    GNB_ASSERT(pp_buffer != GNB_P_NULL);
+	    GNB_ASSERT(*pp_buffer != GNB_P_NULL);
+	    GNB_ASSERT(p_plmn_id != GNB_P_NULL);
+
+	    /* This function composes plmn_id */
+	    GNB_CP_TRACE(GNB_DETAILEDALL, "dungnm26 - Composing plmn_id");
+
+	/*----> UInt8 ~ plmn_count <----*/ 
+
+	    /* Check for correct range [B - both higher and lower boundary] */
+	    if(p_plmn_id->plmn_count < 0 || p_plmn_id->plmn_count > MAX_OCTET_STRING_LEN) 
+	    {
+		        GNB_CP_TRACE(GNB_WARNING, "dungnm26 - Parameter p_plmn_id->plmn_count should be in range [ 0 - MAX_OCTET_STRING_LEN]"
+		            "Incorrect value: %d", p_plmn_id->plmn_count);
+		        return GNB_FAILURE;
+
+	    }
+
+	    /* Compose parameter of basic type */
+	    gnb_cp_pack_UInt8(*pp_buffer, &p_plmn_id->plmn_count, "plmn_count");
+	    *pp_buffer += sizeof(p_plmn_id->plmn_count);
+
+	/*----> UInt8 ~ data <----*/ 
+
+	    /* Compose OCTET_STRING VARIABLE of basic type elements */
+	    {
+		        gnb_counter_t loop;
+		        for(loop = 0; loop < p_plmn_id->plmn_count; loop++)
+		        {
+			            gnb_cp_pack_UInt8(*pp_buffer, &p_plmn_id->data[loop], "data[]");
+			            *pp_buffer += sizeof(UInt8);
+		        }
+	    }
+
+	    return GNB_SUCCESS;
+}
+
+/* get length */
+static
+gnb_length_t
 gnb_il_get_device_config_len 
 (
     device_config_t * p_device_config
@@ -754,6 +754,11 @@ gnb_il_get_device_config_len
 
 	    /* Get length of IE */
 	    length += gnb_il_get_plmn_id_len(&p_device_config->plmn);
+
+	/*----> TEST_PRINT ~ test_print <----*/ 
+
+	    /* Get length of IE */
+	    length += gnb_il_get_TEST_PRINT_len(&p_device_config->test_print);
 
 	    return length;
 }
@@ -881,6 +886,14 @@ gnb_il_compose_device_config
 
 	    /* Compose IE */
 	    if(GNB_FAILURE == gnb_il_compose_plmn_id(pp_buffer, &p_device_config->plmn))
+	    {
+		        return GNB_FAILURE;
+	    }
+
+	/*----> TEST_PRINT ~ test_print <----*/ 
+
+	    /* Compose IE */
+	    if(GNB_FAILURE == gnb_il_compose_TEST_PRINT(pp_buffer, &p_device_config->test_print))
 	    {
 		        return GNB_FAILURE;
 	    }

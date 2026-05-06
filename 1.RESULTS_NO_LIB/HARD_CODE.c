@@ -249,5 +249,6 @@ xnap_return_et assign_hardcode_value_device_config_t( device_config_t *p_device_
 
 	    			/*idx216 data E*/
 
+	    			p_device_config->test_print.data = 0;
 	    return XNAP_SUCCESS;
 }

@@ -54,7 +54,10 @@ typedef struct
     UInt16 data_a[MAX_OCTET_STRING_LEN]; /*^ M, 0, OCTET_STRING, VARIABLE ^*/ /*^ length_a ^*/
 } octet_string_t;
 
+typedef struct {
+    UInt8 data /*^M, 0, N, 0, 0^*/
 
+} TEST_PRINT;
 
 /* ---------------------- Middle Struct ---------------------- */
 typedef struct 
@@ -77,6 +80,7 @@ typedef struct
     band_parameters_t band_data[100]; /*^ M, 0, OCTET_STRING, VARIABLE ^*/ /*^ band_count ^*/
     UInt8 list_id[80]; /*^ M, 0, OCTET_STRING, FIXED ^*/
     plmn_id_t plmn; /*^ M, 0, N, 0, 0 ^*/
+    TEST_PRINT test_print; /*^ M, 0, N, 0, 0 ^*/
 } device_config_t;
 
 typedef struct _rf_parameters_t

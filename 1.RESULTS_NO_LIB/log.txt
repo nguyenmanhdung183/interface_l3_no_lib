@@ -23,4 +23,4 @@
 [INFO] Field p_device_config.plmn.plmn_count is a length reference, assigning 0
 [INFO] Existed structs: []
 [INFO] Updating existed 5G structs: []
-[INFO] Updated existed 5G structs: []
+[INFO] Updated existed 5G structs: ['TEST_PRINT']

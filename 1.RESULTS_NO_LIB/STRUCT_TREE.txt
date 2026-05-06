@@ -1,0 +1,46 @@
+device_config_t
+├── bitmask : UInt16
+├── version : UInt8
+├── rf_params : rf_parameters_t
+│   ├── bitmask : rrc_bitmask_t
+│   ├── id : UInt16
+│   ├── nmd : UInt8[]
+│   ├── num_bands : UInt8
+│   ├── bands : band_parameters_t[]
+│   │   ├── present_bitmask : rrc_bitmask_t
+│   │   ├── band_id : UInt8
+│   │   ├── frequency : UInt16
+│   │   ├── optional_param_id : UInt8
+│   │   ├── optional_param_data : UInt8
+│   │   ├── NHL : dunglieu_t[]
+│   │   │   ├── haha : UInt8[]
+│   │   │   ├── hihi : UInt16
+│   │   ├── MD : manhdung_t
+│   │   │   ├── numbits : UInt16
+│   │   │   ├── data : UInt8[]
+│   ├── config_blob : octet_string_t[]
+│   │   ├── length_a : UInt8
+│   │   ├── data_a : UInt16[]
+├── extra_data_config : UInt8
+├── extra_data : octet_string_t[]
+│   ├── length_a : UInt8
+│   ├── data_a : UInt16[]
+├── band_count : UInt16
+├── band_data : band_parameters_t[]
+│   ├── present_bitmask : rrc_bitmask_t
+│   ├── band_id : UInt8
+│   ├── frequency : UInt16
+│   ├── optional_param_id : UInt8
+│   ├── optional_param_data : UInt8
+│   ├── NHL : dunglieu_t[]
+│   │   ├── haha : UInt8[]
+│   │   ├── hihi : UInt16
+│   ├── MD : manhdung_t
+│   │   ├── numbits : UInt16
+│   │   ├── data : UInt8[]
+├── list_id : UInt8[]
+├── plmn : plmn_id_t
+│   ├── plmn_count : UInt8
+│   ├── data : UInt8[]
+├── test_print : TEST_PRINT
+│   ├── data : UInt8

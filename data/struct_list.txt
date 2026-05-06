@@ -1,7 +1,8 @@
 octet_string_t
-plmn_id_t
-manhdung_t
 dunglieu_t
+manhdung_t
 band_parameters_t
 rf_parameters_t
+plmn_id_t
+TEST_PRINT
 device_config_t

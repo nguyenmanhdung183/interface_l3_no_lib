@@ -1269,6 +1269,242 @@ void trace_{struct_name}({struct_name} *{root})
 """
 
 
+
+#======================== PRINT STRUCTURE =================
+def print_struct_tree(struct_name, registry, indent=0, visited=None, is_root=True):
+    if visited is None:
+        visited = set()
+
+    prefix = "│   " * indent
+
+    # ✅ chỉ in root
+    if is_root:
+        print(struct_name)
+
+    # tránh loop
+    if struct_name in visited:
+        print(f"{prefix}(recursive)")
+        return
+    visited.add(struct_name)
+
+    struct_def = registry["struct_hc"].get(struct_name)
+    if not struct_def:
+        return
+
+    for field in struct_def["fields"]:
+        field_name = field["name"]
+        field_type = field["data_type"]
+        child_type = field["child_type"]
+        is_array = field["is_array"]
+
+        arr = "[]" if is_array else ""
+        line_prefix = "│   " * indent + "├── "
+
+        if field_type == "PRIMITIVE":
+            print(f"{line_prefix}{field_name} : {child_type}{arr}")
+
+        elif field_type == "STRUCT":
+            print(f"{line_prefix}{field_name} : {child_type}{arr}")
+
+            # 👇 đệ quy nhưng KHÔNG in lại struct name
+            print_struct_tree(
+                child_type,
+                registry,
+                indent + 1,
+                visited.copy(),
+                is_root=False
+            )
+            
+def write_struct_tree(struct_name, registry, file, indent=0, visited=None, is_root=True):
+    if visited is None:
+        visited = set()
+
+    prefix = "│   " * indent
+    branch = "├── " if indent > 0 else ""
+
+    if is_root:
+        file.write(f"{struct_name}\n")
+
+    if struct_name in visited:
+        file.write(f"{prefix}(recursive)\n")
+        return
+    visited.add(struct_name)
+
+    struct_def = registry["struct_hc"].get(struct_name)
+    if not struct_def:
+        return
+
+    for field in struct_def["fields"]:
+        field_name = field["name"]
+        field_type = field["data_type"]
+        child_type = field["child_type"]
+        is_array = field["is_array"]
+
+        prefix_child = "│   " * indent
+
+        if field_type == "PRIMITIVE":
+            arr = "[]" if is_array else ""
+            file.write(f"{prefix_child}├── {field_name} : {child_type}{arr}\n")
+
+        elif field_type == "STRUCT":
+            arr = "[]" if is_array else ""
+            file.write(f"{prefix_child}├── {field_name} : {child_type}{arr}\n")
+
+            # 👇 KHÔNG in lại struct_name nữa
+            write_struct_tree(
+                child_type,
+                registry,
+                file,
+                indent + 1,
+                visited.copy(),
+                is_root=False
+            )
+
+
+#=====================NEW LOG TRACE ========================
+
+def get_tree_helper_code():
+    return r"""
+static void trace_indent(int level)
+{
+    for (int i = 0; i < level; i++)
+    {
+        fprintf(stderr, "│   ");
+    }
+}
+
+static void trace_node(int level, const char *name)
+{
+    trace_indent(level);
+    fprintf(stderr, "%s\n", name);
+}
+
+static void trace_field_u32(int level, const char *name, unsigned int val)
+{
+    trace_indent(level);
+    fprintf(stderr, "├── %s = %u\n", name, val);
+}
+
+static void trace_field_hex(int level, const char *name, unsigned char val)
+{
+    trace_indent(level);
+    fprintf(stderr, "├── %s = 0x%02X\n", name, val);
+}
+"""
+
+def emit_tree_primitive(field, field_path, indent_lv):
+    lines = []
+    name = field["name"]
+    is_array = field["is_array"]
+
+    indent = "\t" * indent_lv
+
+    if is_array:
+        size = field.get("array_size", 2)
+
+        lines.append(f'{indent}trace_indent({indent_lv});')
+        lines.append(f'{indent}fprintf(stderr, "├── {name}[]\\n");')
+
+        lines.append(f"{indent}for (int i = 0; i < {size}; i++)")
+        lines.append(f"{indent}{{")
+        lines.append(f'{indent}\ttrace_field_hex({indent_lv+1}, "{name}[i]", {field_path}[i]);')
+        lines.append(f"{indent}}}")
+    else:
+        lines.append(f'{indent}trace_field_u32({indent_lv}, "{name}", {field_path});')
+
+    return lines
+
+
+def emit_tree_struct(field, field_path, registry, indent_lv):
+    lines = []
+    name = field["name"]
+    child = field["child_type"]
+
+    indent = "\t" * indent_lv
+
+    # node
+    lines.append(f'{indent}trace_indent({indent_lv});')
+    lines.append(f'{indent}fprintf(stderr, "├── {name} : {child}\\n");')
+
+    # enter struct
+    lines.append(f'{indent}trace_node({indent_lv+1}, "{child}");')
+
+    if field["is_array"]:
+        size = field.get("array_size", 2)
+
+        lines.append(f"{indent}for (int i = 0; i < {size}; i++)")
+        lines.append(f"{indent}{{")
+
+        sub_path = f"{field_path}[i]"
+
+        lines.extend(
+            emit_tree_struct_body(child, registry, sub_path, indent_lv + 2)
+        )
+
+        lines.append(f"{indent}}}")
+    else:
+        lines.extend(
+            emit_tree_struct_body(child, registry, field_path, indent_lv + 1)
+        )
+
+    return lines
+
+
+def emit_tree_struct_body(struct_name, registry, path, indent_lv):
+    lines = []
+
+    struct_def = registry["struct_hc"][struct_name]
+
+    for field in struct_def["fields"]:
+        field_path = f"{path}.{field['name']}"
+
+        if field["data_type"] == "PRIMITIVE":
+            lines.extend(
+                emit_tree_primitive(field, field_path, indent_lv)
+            )
+
+        elif field["data_type"] == "STRUCT":
+            lines.extend(
+                emit_tree_struct(field, field_path, registry, indent_lv)
+            )
+
+    return lines
+
+
+def get_struct_tree_wrapper(struct_name, registry):
+    body_lines = []
+
+    body_lines.append(f'trace_node(0, "{struct_name}");')
+
+    root = f"p_{struct_name.replace('_t','')}"
+
+    body_lines.extend(
+        emit_tree_struct_body(
+            struct_name,
+            registry,
+            root,
+            1
+        )
+    )
+
+    body = "\n".join(body_lines)
+
+    # convert . -> ->
+    body = body.replace(f"{root}.", f"{root}->")
+
+    return f"""
+/* helper start */
+
+{get_tree_helper_code()}
+
+/* helper end */
+
+void trace_{struct_name}_tree({struct_name} *{root})
+{{
+{indent(body, " " * 4)}
+}}
+"""
+
 # =========================================================
 # MAIN
 # =========================================================
@@ -1293,7 +1529,22 @@ def main():
 
     with open( f"{RESULT_FOLDER}/GET_DATA.c",  "w",  encoding="utf-8" ) as f:
         f.write(trace)
+        
+        
+        
+    # trace tree
+    tree_code = get_struct_tree_wrapper(ROOT_STRUCT, HARDCODE_REGISTRY)
 
+    with open(f"{RESULT_FOLDER}/GET_DATA_TREE.c", "w", encoding="utf-8") as f:
+        f.write(tree_code)
+
+    print("Generated: GET_DATA_TREE.c")
+
+
+    print("\n===== STRUCT TREE =====\n")
+    print_struct_tree(ROOT_STRUCT, HARDCODE_REGISTRY)
+    with open(f"{RESULT_FOLDER}/STRUCT_TREE.txt", "w", encoding="utf-8") as f:
+        write_struct_tree(ROOT_STRUCT, HARDCODE_REGISTRY, f)
 
 if __name__ == "__main__":
 
