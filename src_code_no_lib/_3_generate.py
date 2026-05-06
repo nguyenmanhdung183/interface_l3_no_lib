@@ -1392,7 +1392,12 @@ static void trace_field_hex(int level, const char *name, unsigned char val)
 }
 """
 
+
+
+IDX_TRACE_TREE_LEVEL = 0
+
 def emit_tree_primitive(field, field_path, indent_lv):
+    global IDX_TRACE_TREE_LEVEL
     lines = []
     name = field["name"]
     is_array = field["is_array"]
@@ -1400,24 +1405,43 @@ def emit_tree_primitive(field, field_path, indent_lv):
     indent = "\t" * indent_lv
 
     if is_array:
-        size = field.get("array_size", 2)
+        IDX_TRACE_TREE_LEVEL +=1
+        range_check = str(field.get("range_check")).upper()
+        desc = str(field.get("description")).upper()
+        length_ref = field.get("length_ref")
 
+        # ===== xác định size =====
+        other_check = ""
+        if range_check == "OCTET_STRING" and desc == "VARIABLE":
+            if length_ref == "numbits":
+                size_expr = f"{field_path.rsplit('.',1)[0]}.{length_ref}/8"
+                
+            else:
+                size_expr = f"{field_path.rsplit('.',1)[0]}.{length_ref}"
+                other_check = f" || i{IDX_TRACE_TREE_LEVEL} < {field.get("array_size")}"
+        elif field.get("array_size"):
+            size_expr = field.get("array_size")
+        else:
+            size_expr = 2  # fallback
+
+        # ===== log =====
         lines.append(f'{indent}trace_indent({indent_lv});')
         lines.append(f'{indent}fprintf(stderr, "├── {name}[]\\n");')
 
-        lines.append(f"{indent}for (int i = 0; i < {size}; i++)")
+        lines.append(f"{indent}for (int i{IDX_TRACE_TREE_LEVEL} = 0; i{IDX_TRACE_TREE_LEVEL} < {size_expr} {other_check}; i{IDX_TRACE_TREE_LEVEL}++)")
         lines.append(f"{indent}{{")
-        #lines.append(f'{indent}\ttrace_field_hex({indent_lv+1}, "{name}[i]", {field_path}[i]);')
         lines.append(f'{indent}\ttrace_indent({indent_lv+1});')
-        lines.append(f'{indent}\tfprintf(stderr, "├── {name}[%d] = 0x%02X\\n", i, {field_path}[i]);')
+        lines.append(f'{indent}\tfprintf(stderr, "├── {name}[%d] = 0x%02X\\n", i{IDX_TRACE_TREE_LEVEL}, {field_path}[i{IDX_TRACE_TREE_LEVEL}]);')
         lines.append(f"{indent}}}")
+        IDX_TRACE_TREE_LEVEL -=1
+
     else:
         lines.append(f'{indent}trace_field_u32({indent_lv}, "{name}", {field_path});')
 
     return lines
 
-
 def emit_tree_struct(field, field_path, registry, indent_lv):
+    global IDX_TRACE_TREE_LEVEL
     lines = []
     name = field["name"]
     child = field["child_type"]
@@ -1427,22 +1451,37 @@ def emit_tree_struct(field, field_path, registry, indent_lv):
     lines.append(f'{indent}trace_indent({indent_lv});')
     lines.append(f'{indent}fprintf(stderr, "├── {name} : {child}\\n");')
 
+    # ===== xác định size =====
     if field["is_array"]:
-        size = field.get("array_size", 2)
+        IDX_TRACE_TREE_LEVEL +=1
+        range_check = str(field.get("range_check")).upper()
+        desc = str(field.get("description")).upper()
+        length_ref = field.get("length_ref")
 
-        lines.append(f"{indent}for (int i = 0; i < {size}; i++)")
+        other_check = ""
+        if range_check == "OCTET_STRING" and desc == "VARIABLE":
+            size_expr = f"{field_path.rsplit('.',1)[0]}.{length_ref}"
+            other_check = f" || i{IDX_TRACE_TREE_LEVEL} < {field.get("array_size")}"
+        elif field.get("array_size"):
+            size_expr = field.get("array_size")
+        else:
+            size_expr = 2
+
+        lines.append(f"{indent}for (int i{IDX_TRACE_TREE_LEVEL} = 0; i{IDX_TRACE_TREE_LEVEL} < {size_expr} {other_check}; i{IDX_TRACE_TREE_LEVEL}++)")
         lines.append(f"{indent}{{")
 
         lines.append(f'{indent}\ttrace_indent({indent_lv+1});')
-        lines.append(f'{indent}\tfprintf(stderr, "├── {name}[%d]\\n", i);')
+        lines.append(f'{indent}\tfprintf(stderr, "├── {name}[%d]\\n", i{IDX_TRACE_TREE_LEVEL});')
 
-        sub_path = f"{field_path}[i]"
+        sub_path = f"{field_path}[i{IDX_TRACE_TREE_LEVEL}]"
 
         lines.extend(
             emit_tree_struct_body(child, registry, sub_path, indent_lv + 2)
         )
 
         lines.append(f"{indent}}}")
+        IDX_TRACE_TREE_LEVEL -=1
+
     else:
         lines.extend(
             emit_tree_struct_body(child, registry, field_path, indent_lv + 1)
